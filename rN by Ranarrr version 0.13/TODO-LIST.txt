@@ -1,0 +1,7 @@
+- KnifeBot
+- Autoduck on edges (for blockjumping and such)
+- pSpeed
+- Aimbot
+- Measuring blocks
+- nosmoke
+- more customization
