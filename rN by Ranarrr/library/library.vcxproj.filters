@@ -266,9 +266,6 @@
     <ClInclude Include="Command.hpp">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="crc32.hpp">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="cvars.hpp">
       <Filter>headers</Filter>
     </ClInclude>
@@ -335,9 +332,6 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="hook.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="crc32.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="cvars.cpp">

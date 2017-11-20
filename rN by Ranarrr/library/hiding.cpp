@@ -1,6 +1,5 @@
 #include <windows.h>
 #include "hiding.hpp"
-#include "crc32.hpp"
 
 CModule::CModule() {
 }
@@ -19,31 +18,6 @@ PPEB_DUMMY __declspec( naked ) GetPEB( void ) {
 		mov eax, fs:[0x30];
 		retn;
 	}
-}
-
-HMODULE CModule::GetHashedModule( DWORD_PTR hash ) {
-	PPEB_DUMMY pPEB = NULL;
-	PLDR_MODULE module;
-	PLIST_ENTRY entry;
-	PLIST_ENTRY InLoadOrderModuleList;
-
-	pPEB = GetPEB();
-
-	if( pPEB != NULL ) {
-		InLoadOrderModuleList = &pPEB->LDR_Data->InLoadOrderModuleList;
-
-		for( entry = InLoadOrderModuleList->Flink; entry != InLoadOrderModuleList; entry = entry->Flink ) {
-			module = CONTAINING_RECORD( entry, LDR_MODULE, InLoadOrderModuleList );
-
-			DWORD_PTR dwHash = crc32( ( void* ) module->BaseDllName.Buffer, module->BaseDllName.Length );
-
-			if( hash == dwHash ) {
-				return ( HMODULE ) module->BaseAddress;
-			}
-		}
-	}
-
-	return ( HMODULE ) NULL;
 }
 
 void CModule::HideFromPEB( HINSTANCE hInstance ) {

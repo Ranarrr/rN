@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -14,13 +14,13 @@
     <ProjectGuid>{B5E2AC2B-6700-4B21-80DD-C722E828B2FE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>lib</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -28,7 +28,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -102,7 +102,6 @@
     <ClInclude Include="Instruments.hpp" />
     <ClInclude Include="color.hpp" />
     <ClInclude Include="Command.hpp" />
-    <ClInclude Include="crc32.hpp" />
     <ClInclude Include="cvars.hpp" />
     <ClInclude Include="entity.hpp" />
     <ClInclude Include="jumpstats.hpp" />
@@ -196,7 +195,6 @@
     <ClCompile Include="esp.cpp" />
     <ClCompile Include="Instruments.cpp" />
     <ClCompile Include="Command.cpp" />
-    <ClCompile Include="crc32.cpp" />
     <ClCompile Include="jumpstats.cpp" />
     <ClCompile Include="NoFlash.cpp" />
     <ClCompile Include="offsets.cpp" />

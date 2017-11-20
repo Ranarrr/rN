@@ -58,6 +58,8 @@
 #include "xstring.hpp"
 #include "cBuddy.hpp"
 
+using namespace std;
+
 typedef struct cl_clientfuncs_s {
 	int( *Initialize ) ( cl_enginefunc_t *pEnginefuncs, int iVersion );
 	int( *HUD_Init ) ( void );

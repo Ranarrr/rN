@@ -12,7 +12,7 @@
 
 //Other stuff
 DWORD_PTR g_dwSpeed;
-POINT current_m_pos;
+POINT current_m_pos, last_m_pos;
 
 //ints
 int mxl, mxr, addstr_delay;
@@ -114,7 +114,7 @@ void CClient::HUD_Redraw( float time, int intermission ) {
 		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.67, Color::White(), XString( /*FallSpeed: %f*/ 0x04, 0x0D, 0xAC, 0xEACCC2C3, 0xE3C1D7D6, 0xD08F9692, 0xDE000000 ).c(), g_pLocalPlayer()->m_flFallSpeed );
 		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.69, Color::White(), XString( /*GroundHeight: %f*/ 0x04, 0x10, 0xCB, 0x8CBEA2BB, 0xA1B499B7, 0xBAB3BDA2, 0xEDF8FCBC ).c(), Instruments::Get()->flGroundHeight() );
 		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.71, Color::White(), XString( /*Edge dist: %f*/ 0x04, 0x0D, 0xC8, 0x8DADADAE, 0xECA9A7BC, 0xA4EBF2F6, 0xB2000000 ).c(), Instruments::Get()->flEdgeDist() );
-
+		
 		CJumpStats::Get()->HUD_Redraw();
 
 		CNoFlash::Get()->NoFlashOn();
@@ -266,7 +266,20 @@ int CClient::CL_IsThirdPerson() {
 
 void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	GetCursorPos( &current_m_pos );
-	g_pLocalPlayer()->m_iMX = ( current_m_pos.x - g_Engine.GetWindowCenterX() ); // if (mx > 0) mouse moves to the right, if (mx < 0) mouse moves to the left
+	// if (mx > 0) mouse moves to the right, if (mx < 0) mouse moves to the left
+	if( g_Engine.pfnGetCvarPointer( "m_rawinput" )->value ) {
+		if( current_m_pos.x >= ( g_Engine.GetWindowCenterX() * 2 ) - 1 ) {
+			g_pLocalPlayer()->m_iMX = 100;
+		} else if( current_m_pos.x <= 0 ) {
+			g_pLocalPlayer()->m_iMX = -100;
+		} else {
+			g_pLocalPlayer()->m_iMX = ( current_m_pos.x - last_m_pos.x );
+		}
+
+		GetCursorPos( &last_m_pos );
+	} else {
+		g_pLocalPlayer()->m_iMX = ( current_m_pos.x - g_Engine.GetWindowCenterX() );
+	}
 
 	g_Client.CL_CreateMove( flFrameTime, pCmd, iActive );
 
@@ -759,7 +772,7 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 		istrs = 0;
 	//--------------------------------------------------------
 
-	//BHOP --------------------------------------------------- prob the proudest i've been lol, don't h8, it's decent. how would i know if im setting duck? well it's not bad
+	//BHOP ---------------------------------------------------
 	if( CCVars::Get()->bhop->value && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2
 		&& pCmd->buttons&IN_JUMP && GetAsyncKeyState( VK_SPACE ) ) {
 

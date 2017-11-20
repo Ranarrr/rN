@@ -13,7 +13,6 @@ public:
 	void Hide( HANDLE hModule );
 	void HideExtra( HINSTANCE hModule );
 	bool DestroyHeader( HMODULE hModule );
-	HMODULE GetHashedModule( DWORD_PTR hash );
 };
 
 typedef LPVOID *PPVOID;
