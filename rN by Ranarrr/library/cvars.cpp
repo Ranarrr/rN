@@ -47,7 +47,7 @@ void exec() {
 		CCVars::Get()->ExecFunc( g_Engine.Cmd_Argv( 1 ) );
 	else {
 		g_pEngine->Con_Printf( "\t\t\t<rN> Usage: \n" );
-		g_pEngine->Con_Printf( "\t\t\t\t\t\t<rN> Execfile {NAMEOFCFG}[.cfg]\n\n" );
+		g_pEngine->Con_Printf( "\t\t\t\t\t\t<rN> Execfile {NAMEOFCFG}.cfg\n\n" );
 	}
 }
 
@@ -55,7 +55,7 @@ void CCVars::Init() {
 	CCVars::Get()->ExecFunc( XString( /*rN.cfg*/ 0x02, 0x06, 0x1E, 0x6C510E42, 0x44440000 ).c() );
 
 	g_Engine.Con_Printf( "\n\t\t" );
-	g_Engine.Con_Printf( XString( /*rN v0.16 by Ranarrr*/ 0x05, 0x13, 0xA6, 0xD4E988DF, 0x9A859D9B, 0x8ECDC991, 0xE0D2DAD4, 0xC4C5CA00 ).c() );
+	g_Engine.Con_Printf( XString( /*rN v0.17 by Ranarrr*/ 0x05, 0x13, 0xB7, 0xC5F699CC, 0x8B928C89, 0x9FA2B8E2, 0x91A5ABA7, 0xB5BABB00 ).c() );
 	g_Engine.Con_Printf( "\n\t\t" );
 	g_Engine.Con_Printf( XString( /*Want to thank <3:*/ 0x05, 0x11, 0x36, 0x6156564D, 0x1A4F531D, 0x4A57212F, 0x29637876, 0x7C000000 ).c() );
 	g_Engine.Con_Printf( "\n\n\t\t\t\t\t\t" );
@@ -69,6 +69,8 @@ void CCVars::Init() {
 	g_Engine.Con_Printf( "\n\t\t\t" );
 	g_Engine.Con_Printf( XString( /*<rN> GL & HF*/ 0x03, 0x0C, 0xA9, 0x95D8E592, 0x8DE9E390, 0x9792FBF2 ).c() );
 	g_Engine.Con_Printf( "\n" );
+
+	// me and GreySkull discussing implementation of custom prefix through TeamViewer (because the one i have now is absolute garbage)
 
 	// what flags could you have for RegisterVar? serveronly or not not sure what it does, but that's the desc of that param
 	//Ah yes. Ok that makes sense. I know it's a bit of an overccomplication kinda

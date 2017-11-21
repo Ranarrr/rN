@@ -3,11 +3,9 @@
 int CJumpStats::iJumpoffBlock;
 float CJumpStats::flJumpoffEdge, CJumpStats::flJumpoffLandingEdge;
 
-CJumpStats::CJumpStats() {
-}
+CJumpStats::CJumpStats() {}
 
-CJumpStats::~CJumpStats() {
-}
+CJumpStats::~CJumpStats() {}
 
 CJumpStats* CJumpStats::Get() {
 	static CJumpStats sJumpStats;
@@ -100,24 +98,24 @@ int CJumpStats::CalculateDistances( Vector vStart, Vector vStop, float flJumpoff
 void CJumpStats::HUD_Redraw() {
 	if( this->flDistance > CCVars::Get()->js_min->value ) {
 		if( this->iTimer > 0 ) {
-			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 15, Color::White(), "Distance: %.0f", this->flDistance );
-			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 30, Color::White(), "Maxspeed: %.0f", this->flMaxspeed );
-			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 45, Color::White(), "Prestrafe: %.0f", this->flPrestrafe );
-			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 60, Color::White(), "Strafes: %i", this->iStrafes );
-			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 75, Color::White(), "FPS: %i", this->iFPS );
+			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 15, Color::White(), XString( /*Distance: %.0f*/ 0x04, 0x0E, 0x1A, 0x5E726F69, 0x7F714344, 0x1803010B, 0x16410000 ).c(), this->flDistance );
+			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 30, Color::White(), XString( /*Maxspeed: %.0f*/ 0x04, 0x0E, 0x38, 0x75584248, 0x4C585B5B, 0x7A61676D, 0x74230000 ).c(), this->flMaxspeed );
+			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 45, Color::White(), XString( /*Prestrafe: %.0f*/ 0x04, 0x0F, 0xFF, 0xAF726471, 0x77766460, 0x6232292F, 0x253C6B00 ).c(), this->flPrestrafe );
+			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 60, Color::White(), XString( /*Strafes: %i*/ 0x03, 0x0B, 0xBC, 0xEFC9CCDE, 0xA6A4B1F9, 0xE4E0AF00 ).c(), this->iStrafes );
+			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.25 + 75, Color::White(), XString( /*FPS: %i*/ 0x02, 0x07, 0xF2, 0xB4A3A7CF, 0xD6D29100 ).c(), this->iFPS );
 			this->iTimer--;
 		}
 	}
 	if( iTimer1 ) {
-		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.65 + CDrawing::Get()->GetStringHeight() * 7, Color::Green(), "Block: %i Jumpoff: %f Landing: %f", iJumpoffBlock, flJumpoffEdge, flJumpoffLandingEdge );
+		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.65 + CDrawing::Get()->GetStringHeight() * 7, Color::Green(), XString( /*Block: %i Jumpoff: %f Landing: %f*/ 0x09, 0x21, 0x62, 0x200F0B06, 0x0D5D484C, 0x034B2618, 0x031F1F17, 0x14495450, 0x10573418, 0x141F1513, 0x1945A0A4, 0xE4000000 ).c(), iJumpoffBlock, flJumpoffEdge, flJumpoffLandingEdge );
 		iTimer1--; iTimer2 = 0; iTimer3 = 0;
 	}
 	if( iTimer2 ) {
-		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.65 + CDrawing::Get()->GetStringHeight() * 7, Color::Red(), "Block: %i Jumpoff: %f", iJumpoffBlock, flJumpoffEdge );
+		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.65 + CDrawing::Get()->GetStringHeight() * 7, Color::Red(), XString( /*Block: %i Jumpoff: %f*/ 0x06, 0x15, 0x59, 0x1B36343F, 0x36647F45, 0x08422911, 0x0816080E, 0x0F504B49, 0x0B000000 ).c(), iJumpoffBlock, flJumpoffEdge );
 		iTimer2--; iTimer1 = 0; iTimer3 = 0;
 	}
 	if( iTimer3 ) {
-		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.65 + CDrawing::Get()->GetStringHeight() * 7, Color::Green(), "Jumpoff: %f", flJumpoffEdge );
+		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.65 + CDrawing::Get()->GetStringHeight() * 7, Color::Green(), XString( /*Jumpoff: %f*/ 0x03, 0x0B, 0xF9, 0xB38F968C, 0x9298993A, 0x21276500 ).c(), flJumpoffEdge );
 		iTimer3--; iTimer1 = 0; iTimer2 = 0;
 	}
 }
@@ -165,7 +163,7 @@ void CJumpStats::CL_CreateMove( struct usercmd_s *pCmd ) {
 						g_Engine.Con_Printf( "\n" );
 						g_Engine.Con_Printf( XString( /*Distance: %f Maxspeed: %f Prestrafe: %f Strafes: %i*/ 0x0D, 0x33, 0xE8, 0xAC80999F, 0x8D838D8A, 0xCAD1D795, 0xD4B8978F, 0x8B899F9E, 0x98C7DEDA, 0x66215271, 0x61767275, 0x696F6F31, 0x2C28682F, 0x43656072, 0x7270652D, 0x383C7300 ).c(), this->flDistance, this->flMaxspeed, this->flPrestrafe, this->iStrafes );
 						g_Engine.Con_Printf( "\n" );
-						g_Engine.Con_Printf( XString( /*rN v0.16 by Ranarrr*/ 0x05, 0x13, 0xA6, 0xD4E988DF, 0x9A859D9B, 0x8ECDC991, 0xE0D2DAD4, 0xC4C5CA00 ).c() );
+						g_Engine.Con_Printf( XString( /*rN v0.17 by Ranarrr*/ 0x05, 0x13, 0xB7, 0xC5F699CC, 0x8B928C89, 0x9FA2B8E2, 0x91A5ABA7, 0xB5BABB00 ).c() );
 						g_Engine.Con_Printf( "\n" );
 					}
 				}

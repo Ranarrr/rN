@@ -267,19 +267,24 @@ int CClient::CL_IsThirdPerson() {
 void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	GetCursorPos( &current_m_pos );
 	// if (mx > 0) mouse moves to the right, if (mx < 0) mouse moves to the left
-	if( g_Engine.pfnGetCvarPointer( "m_rawinput" )->value ) {
-		if( current_m_pos.x >= ( g_Engine.GetWindowCenterX() * 2 ) - 1 ) {
-			g_pLocalPlayer()->m_iMX = 100;
-		} else if( current_m_pos.x <= 0 ) {
-			g_pLocalPlayer()->m_iMX = -100;
-		} else {
-			g_pLocalPlayer()->m_iMX = ( current_m_pos.x - last_m_pos.x );
-		}
+	if( g_pLocalPlayer()->m_bIsSteam ) {
+		if( g_Engine.pfnGetCvarPointer( "m_rawinput" )->value ) {
+			if( current_m_pos.x >= ( g_Engine.GetWindowCenterX() * 2 ) - 1 ) {
+				g_pLocalPlayer()->m_iMX = 100;
+			} else if( current_m_pos.x <= 0 ) {
+				g_pLocalPlayer()->m_iMX = -100;
+			} else {
+				g_pLocalPlayer()->m_iMX = ( current_m_pos.x - last_m_pos.x );
+			}
 
-		GetCursorPos( &last_m_pos );
+			GetCursorPos( &last_m_pos );
+		} else {
+			g_pLocalPlayer()->m_iMX = ( current_m_pos.x - g_Engine.GetWindowCenterX() );
+		}
 	} else {
 		g_pLocalPlayer()->m_iMX = ( current_m_pos.x - g_Engine.GetWindowCenterX() );
 	}
+	
 
 	g_Client.CL_CreateMove( flFrameTime, pCmd, iActive );
 
