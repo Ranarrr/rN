@@ -1,5 +1,5 @@
-#ifndef _XSTRING_H_
-#define _XSTRING_H_
+#ifndef XSTRING_HPP
+#define XSTRING_HPP
 
 #include "main.hpp"
 
@@ -9,15 +9,15 @@ public:
 	virtual ~XString();
 
 public:
-	char *		c();
+	char		*c();
 	std::string s();
 
 private:
-	char *	m_charList;
-	char *	m_retBuf;
+	char	*m_charList;
+	char	*m_retBuf;
 	int		m_strLength;
 	int		m_hashLength;
 	int		m_key;
 };
 
-#endif //xstring.h
+#endif // XSTRING_HPP

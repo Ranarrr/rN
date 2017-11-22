@@ -1,10 +1,8 @@
 #include "main.hpp"
 
-CCVars::CCVars() {
-}
+CCVars::CCVars() {}
 
-CCVars::~CCVars() {
-}
+CCVars::~CCVars() {}
 
 CCVars* CCVars::Get() {
 	static CCVars sCVars;

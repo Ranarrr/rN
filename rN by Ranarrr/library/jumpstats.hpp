@@ -1,17 +1,18 @@
-#ifndef _JUMPSTATS_H_
-#define _JUMPSTATS_H_
+#ifndef JUMPSTATS_HPP
+#define JUMPSTATS_HPP
 
 #include "main.hpp"
 
 class CJumpStats {
 private:
 	CJumpStats();
+
 public:
 	virtual ~CJumpStats();
 	static CJumpStats*	Get();
 
 	void CL_CreateMove( struct usercmd_s *pCmd );
-	void HUD_Redraw( void );
+	void HUD_Redraw();
 private:
 	Vector vecStart;
 	Vector vecEnd;
@@ -31,4 +32,4 @@ private:
 	int CalculateDistances( Vector vStart, Vector vStop, float flJumpoffFootHeight, float flDistance );
 };
 
-#endif // JUMPSTATS_H
+#endif // JUMPSTATS_HPP

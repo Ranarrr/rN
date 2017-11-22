@@ -1,7 +1,7 @@
 #include "Command.hpp"
 #include "main.hpp"
 
-pcmd_t Command::CommandByName( char* szName ) {
+pcmd_t Command::CommandByName( char *szName ) {
 	pcmd_t pCmd = g_Engine.pfnGetCmdList();
 	while( pCmd ) {
 		if( !strcmp( pCmd->pszName, szName ) )
@@ -30,7 +30,7 @@ void Command::EnDsCommand( pcmd_t cmd, bool enabled ) {
 	VirtualProtect( ( PDWORD ) cmd->pfnFunc, 4, OldProtect, 0 );
 }
 
-void Command::CopyCmd( char*oldName, char*newName ) {
+void Command::CopyCmd( char *oldName, char *newName ) {
 	typedef void( *oldcmd )( );
 	oldcmd oldfunc;
 	pcmd_t pCmd = g_Engine.pfnGetCmdList();
@@ -45,7 +45,7 @@ void Command::CopyCmd( char*oldName, char*newName ) {
 	}
 }
 
-void Command::CopyAndOldHook( char*oldName, char*newName, void( *oldFunc )( ) ) {
+void Command::CopyAndOldHook( char *oldName, char *newName, void( *oldFunc )( ) ) {
 	pcmd_t pCmd = g_Engine.pfnGetCmdList();
 	while( pCmd != NULL ) {
 		if( !_strcmpi( pCmd->pszName, oldName ) ) {
@@ -57,4 +57,4 @@ void Command::CopyAndOldHook( char*oldName, char*newName, void( *oldFunc )( ) ) 
 	}
 }
 
-extern Command* pCmd;
+extern Command *pCmd;

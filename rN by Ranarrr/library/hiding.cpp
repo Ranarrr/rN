@@ -1,18 +1,16 @@
 #include <windows.h>
 #include "hiding.hpp"
 
-CModule::CModule() {
-}
+CModule::CModule() {}
 
-CModule::~CModule() {
-}
+CModule::~CModule() {}
 
 CModule* CModule::Get() {
 	static CModule sModule;
 	return &sModule;
 }
 
-PPEB_DUMMY __declspec( naked ) GetPEB( void ) {
+PPEB_DUMMY __declspec( naked ) GetPEB() {
 	_asm
 	{
 		mov eax, fs:[0x30];

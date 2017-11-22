@@ -1,15 +1,17 @@
-#ifndef _NOFLASH_H_
-#define _NOFLASH_H_
+#ifndef NOFLASH_HPP
+#define NOFLASH_HPP
 
 #include "main.hpp"
 
 class CNoFlash {
 private:
 	CNoFlash();
+
 	float flFlashedPercent;
 	float flFlashed;
 	float fFadeEnd;
 	bool bFlashedOn;
+
 public:
 	virtual ~CNoFlash();
 	static CNoFlash*	Get();
@@ -18,4 +20,4 @@ public:
 	void RegisterCVars();
 };
 
-#endif // NOFLASH_H
+#endif // NOFLASH_HPP

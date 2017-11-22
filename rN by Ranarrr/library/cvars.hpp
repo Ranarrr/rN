@@ -1,5 +1,5 @@
-#ifndef _CVARS_H_
-#define _CVARS_H_
+#ifndef CVARS_HPP
+#define CVARS_HPP
 
 #include "main.hpp"
 
@@ -33,6 +33,6 @@ public:
 		*esp_ct_a_vis, *esp_t_a_nvis, *esp_t_a_vis, *recoil_control, *bhop_scroll_delay, /**knifebot_slash_dist, *knifebot_teammates, *knifebot_origin, *knifebot_fov, *knifebot_aim,*/ *esp_visible/*,
 		*knifebot_follow_dist, *knifebot_follow*/, *strafe_control_helper_rayish_fix, *bhop_wog, *bhop_standup, *bhop_standup_10aa;
 
-	void Init( void );
+	void Init();
 };
-#endif
+#endif // CVARS_HPP

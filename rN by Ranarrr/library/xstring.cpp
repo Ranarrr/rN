@@ -36,10 +36,12 @@ __declspec( noinline ) XString::XString( int hashlen, int len, int key, ... ) {
 	}
 	va_end( vl );
 }
+
 XString::~XString() {
 	delete[] m_retBuf;
 	m_retBuf = NULL;
 }
+
 __declspec( noinline ) char * XString::c() {
 	m_retBuf = new char[ m_strLength + 1 ];
 	for( int i = 0; i < m_strLength; i++ ) {
@@ -53,6 +55,7 @@ __declspec( noinline ) char * XString::c() {
 	m_charList = NULL;
 	return m_retBuf;
 }
+
 std::string XString::s() {
 	return std::string( c() );
 }

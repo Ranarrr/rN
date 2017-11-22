@@ -1,5 +1,5 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef COLOR_HPP
+#define COLOR_HPP
 
 #ifdef _WIN32
 #pragma once
@@ -13,18 +13,18 @@ public:
 
 	Color( int r, int g, int b ) : red( r ), green( g ), blue( b ), alpha( 255 ) {}
 
-	static Color White( void ) { return Color( 255, 255, 255, 255 ); }
-	static Color Black( void ) { return Color( 35, 35, 35, 255 ); }
-	static Color Red( void ) { return Color( 255, 30, 30, 255 ); }
-	static Color Green( void ) { return Color( 0, 255, 0, 255 ); }
-	static Color Blue( void ) { return Color( 0, 180, 255, 255 ); }
-	static Color Cyan( void ) { return Color( 0, 127, 255, 255 ); }
-	static Color Yellow( void ) { return Color( 255, 255, 0, 255 ); }
+	static Color White() { return Color( 255, 255, 255, 255 ); }
+	static Color Black() { return Color( 35, 35, 35, 255 ); }
+	static Color Red() { return Color( 255, 30, 30, 255 ); }
+	static Color Green() { return Color( 0, 255, 0, 255 ); }
+	static Color Blue() { return Color( 0, 180, 255, 255 ); }
+	static Color Cyan() { return Color( 0, 127, 255, 255 ); }
+	static Color Yellow() { return Color( 255, 255, 0, 255 ); }
 
-	int r( void ) { return red; }
-	int g( void ) { return green; }
-	int b( void ) { return blue; }
-	int a( void ) { return alpha; }
+	int r() { return red; }
+	int g() { return green; }
+	int b() { return blue; }
+	int a() { return alpha; }
 
 	Color& operator= ( Color& c ) {
 		red = c.r();
@@ -93,4 +93,4 @@ private:
 	int red, green, blue, alpha;
 };
 
-#endif // COLOR_H
+#endif // COLOR_HPP

@@ -1,5 +1,5 @@
-#ifndef _HOOKS_H_
-#define _HOOKS_H_
+#ifndef HOOKS_HPP
+#define HOOKS_HPP
 
 #include "main.hpp"
 
@@ -15,6 +15,7 @@ typedef struct STARTUP_PARAM {
 class CHook {
 private:
 	CHook();
+
 public:
 	virtual ~CHook();
 	static CHook* Get();
@@ -26,4 +27,4 @@ public:
 
 extern cvar_t* RegisterVariable( char *szName, char *szValue, int flags );
 
-#endif // HOOKS_H
+#endif // HOOKS_HPP

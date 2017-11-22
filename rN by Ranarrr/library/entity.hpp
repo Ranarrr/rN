@@ -1,5 +1,5 @@
-#ifndef _ENTITY_H_
-#define _ENTITY_H_
+#ifndef ENTITY_HPP
+#define ENTITY_HPP
 
 #include "main.hpp"
 
@@ -41,4 +41,4 @@ inline CLocalPlayer* g_pLocalPlayer() {
 
 extern SOtherPlayers g_OtherPlayers[ 33 ];
 
-#endif // ENTITY_H
+#endif // ENTITY_HPP

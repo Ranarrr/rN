@@ -1,11 +1,12 @@
-#ifndef _DRAWING_H_
-#define _DRAWING_H_
+#ifndef DRAWING_HPP
+#define DRAWING_HPP
 
 #include "main.hpp"
 
 class CDrawing {
 private:
 	CDrawing();
+
 public:
 	virtual ~CDrawing();
 	static CDrawing*	Get();
@@ -17,9 +18,9 @@ public:
 	void DrawRectangleOutlined( float x, float y, float w, float h, Color col, Color out );
 
 	int GetStringLenght( const char *fmt, ... );
-	int GetStringHeight( void );
+	int GetStringHeight();
 	void DrawString( int x, int y, Color col, const char *fmt, ... );
 	void DrawStringCenter( int x, int y, Color col, const char *fmt, ... );
 };
 
-#endif // DRAWING_H
+#endif // DRAWING_HPP

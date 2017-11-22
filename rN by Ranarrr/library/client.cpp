@@ -27,13 +27,13 @@ float scale;
 //Vectors
 Vector vecPrevpunch( 0, 0, 0 );
 
-void gson( void ) { bDGstrafe = true; }
-void gsoff( void ) { bDGstrafe = false; }
+void gson() { bDGstrafe = true; }
+void gsoff() { bDGstrafe = false; }
 
-void jbon( void ) { DJB = true; }
-void jboff( void ) { DJB = false; }
+void jbon() { DJB = true; }
+void jboff() { DJB = false; }
 
-void stron( void ) {
+void stron() {
 	if( CCVars::Get()->strafe_hack_fps_boost->value ) {
 		*CCVars::Get()->fps_max = 1000.0f;
 		g_pLocalPlayer()->m_bIsSteam ? *CCVars::Get()->fps_override = 1.0f : *CCVars::Get()->developer = 1.0f;
@@ -42,7 +42,7 @@ void stron( void ) {
 	DSTR = true;
 }
 
-void stroff( void ) {
+void stroff() {
 	if( CCVars::Get()->strafe_hack_fps_boost->value ) {
 		*CCVars::Get()->fps_max = 99.5f;
 		g_pEngine->pfnClientCmd( "fps_max 100" );
@@ -247,12 +247,12 @@ int CClient::HUD_AddEntity( int type, struct cl_entity_s *ent, const char *model
 	return iRet;
 }
 
-void CClient::HookEngine( void ) {
+void CClient::HookEngine() {
 	memcpy( &g_Engine, ( LPVOID ) g_pEngine, sizeof( cl_enginefunc_t ) );
 	/* all engine hooks here */
 }
 
-void CClient::HookStudio( void ) {
+void CClient::HookStudio() {
 	memcpy( &g_Studio, ( LPVOID ) g_pStudio, sizeof( engine_studio_api_t ) );
 	/* all studio hooks here */
 }
@@ -931,7 +931,7 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	// -------------------------------
 }
 
-void CClient::HookClient( void ) {
+void CClient::HookClient() {
 	memcpy( &g_Client, ( LPVOID ) g_pClient, sizeof( cl_clientfunc_t ) );
 	g_pClient->HUD_Frame = &this->HUD_Frame;
 	g_pClient->HUD_Redraw = &this->HUD_Redraw;

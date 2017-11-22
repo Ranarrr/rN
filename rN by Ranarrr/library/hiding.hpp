@@ -227,4 +227,4 @@ typedef struct _TEB // 0x7ffde000
 	PVOID                   StackReserved;
 } TEB, *PTEB;
 
-#endif // HIDING_H
+#endif // HIDING_HPP

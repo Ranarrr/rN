@@ -1,10 +1,8 @@
 #include "Instruments.hpp"
 
-Instruments::Instruments() {
-}
+Instruments::Instruments() {}
 
-Instruments::~Instruments() {
-}
+Instruments::~Instruments() {}
 
 Instruments* Instruments::Get() {
 	static Instruments sInstruments;

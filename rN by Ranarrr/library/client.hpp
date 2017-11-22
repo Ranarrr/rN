@@ -1,5 +1,5 @@
-#ifndef _CLIENT_H_
-#define _CLIENT_H_
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
 
 class CClient {
 private:
@@ -8,18 +8,18 @@ public:
 	virtual ~CClient();
 	static CClient*	Get();
 
-	void HookEngine( void );
-	void HookStudio( void );
-	void HookClient( void );
+	void HookEngine();
+	void HookStudio();
+	void HookClient();
 	void RegisterCmds();
 private:
-	static void HUD_Frame( double time );
-	static void HUD_Redraw( float time, int intermission );
-	static void HUD_PlayerMove( struct playermove_s *ppmove, int server );
-	static void CL_CreateMove( float flFrameTime, struct usercmd_s *pCmd, int iActive );
-	static void V_CalcRefdef( struct ref_params_s *pParams );
-	static int HUD_AddEntity( int type, struct cl_entity_s *ent, const char *modelname );
-	static int CL_IsThirdPerson();
+	static void		HUD_Frame( double time );
+	static void		HUD_Redraw( float time, int intermission );
+	static void		HUD_PlayerMove( playermove_s *ppmove, int server );
+	static void		CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive );
+	static void		V_CalcRefdef( ref_params_s *pParams );
+	static int		HUD_AddEntity( int type, cl_entity_s *ent, const char *modelname );
+	static int		CL_IsThirdPerson();
 };
 
-#endif // CLIENT_H
+#endif // CLIENT_HPP

@@ -1,10 +1,8 @@
 #include "main.hpp"
 
-CEsp::CEsp() {
-}
+CEsp::CEsp() {}
 
-CEsp::~CEsp() {
-}
+CEsp::~CEsp() {}
 
 CEsp* CEsp::Get() {
 	static CEsp sEsp;

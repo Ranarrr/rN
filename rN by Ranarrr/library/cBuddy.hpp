@@ -1,13 +1,12 @@
-#pragma once
+#ifndef BUDDY_HPP
+#define BUDDY_HPP
 
-#ifndef _BUDDY_H_
-#define _BUDDY_H_
+#pragma once
 
 #include "main.hpp"
 
 class cBuddy {
 private:
-
 	int Buddies, iSlot;
 	const char *name;
 	char *UniqueID;
@@ -41,4 +40,4 @@ public:
 
 extern cBuddy g_Buddy[ 256 ];
 
-#endif
+#endif // BUDDY_HPP

@@ -1,10 +1,8 @@
 #include "NoFlash.hpp"
 
-CNoFlash::CNoFlash() {
-}
+CNoFlash::CNoFlash() {}
 
-CNoFlash::~CNoFlash() {
-}
+CNoFlash::~CNoFlash() {}
 
 CNoFlash* CNoFlash::Get() {
 	static CNoFlash sNoFlash;

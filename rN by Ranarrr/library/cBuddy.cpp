@@ -2,11 +2,9 @@
 
 cBuddy g_Buddy[ 256 ];
 
-cBuddy::cBuddy() {
-}
+cBuddy::cBuddy() {}
 
-cBuddy::~cBuddy() {
-}
+cBuddy::~cBuddy() {}
 
 cBuddy* cBuddy::Get() {
 	static cBuddy sBUDDY;

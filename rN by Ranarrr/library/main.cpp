@@ -6,13 +6,14 @@ cl_clientfunc_t g_Client, *g_pClient = nullptr;
 cl_enginefunc_t g_Engine, *g_pEngine = nullptr;
 engine_studio_api_t g_Studio, *g_pStudio = nullptr;
 
-string szDirFile( char* pszName ) {
+string szDirFile( char *pszName ) {
 	string szRet = g_pLocalPlayer()->m_szBaseDir;
 	return ( szRet + pszName );
 }
 
 bool bHasLogged = false;
-void add_log( int num, char * fmt, ... )
+
+void add_log( int num, char *fmt, ... )
 {
 	va_list va_alist;
 	char buf[ 255 ], logbuf[ 1024 ];

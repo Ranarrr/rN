@@ -120,7 +120,7 @@ void CJumpStats::HUD_Redraw() {
 	}
 }
 
-void CJumpStats::CL_CreateMove( struct usercmd_s *pCmd ) {
+void CJumpStats::CL_CreateMove( usercmd_s *pCmd ) {
 	if( Instruments::Get()->flEdgeDist() < CCVars::Get()->edge_jumpoff_dist->value && g_pLocalPlayer()->m_flFallSpeed <= 0 && !( g_pLocalPlayer()->m_bInDuckCmd ) && bEdgeJumpoff )
 		pCmd->buttons |= IN_JUMP;
 

@@ -1,5 +1,5 @@
-#ifndef _OFFSETS_H_
-#define _OFFSETS_H_
+#ifndef OFFSETS_HPP
+#define OFFSETS_HPP
 
 #include <Windows.h>
 #include <fstream>
@@ -12,6 +12,7 @@
 class COffsets {
 private:
 	COffsets();
+
 public:
 	virtual ~COffsets();
 	static COffsets*	Get();
@@ -21,12 +22,12 @@ public:
 	DWORD EngineStudio();
 
 	void Error( const PCHAR Msg );
-	void *ClientFuncs( void );
-	void *EngineFuncs( void );
-	void *GetSpeedPtr( void );
+	void *ClientFuncs();
+	void *EngineFuncs();
+	void *GetSpeedPtr();
 
 	DWORD dwHardwareBase, dwHardwareSize, dwHardwareEnd;
-	bool GetRendererInfo( void );
+	bool GetRendererInfo();
 private:
 	BOOL CompareMem( const UCHAR *buff1, const UCHAR *buff2, UINT size );
 	ULONG FindMemClone( const ULONG start, const ULONG end, const ULONG clone, UINT size );
@@ -34,4 +35,4 @@ private:
 	unsigned char m_RenderType; //to be used for ogl ?
 };
 
-#endif // OFFSETS_H
+#endif // OFFSETS_HPP

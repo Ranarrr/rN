@@ -11,9 +11,9 @@ typedef struct cmd_s {
 
 class Command {
 public:
-	BYTE OLD[ 4 ];
-	pcmd_t CommandByName( char* szName );
-	void EnDsCommand( pcmd_t cmd, bool enabled );
-	void CopyCmd( char*oldName, char*newName );
-	void CopyAndOldHook( char*oldName, char*newName, void( *oldFunc )( ) );
+	BYTE	OLD[ 4 ];
+	pcmd_t	CommandByName( char *szName );
+	void	EnDsCommand( pcmd_t cmd, bool enabled );
+	void	CopyCmd( char *oldName, char *newName );
+	void	CopyAndOldHook( char *oldName, char *newName, void( *oldFunc )( ) );
 };

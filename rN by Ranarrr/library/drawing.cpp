@@ -1,10 +1,8 @@
 #include "drawing.hpp"
 
-CDrawing::CDrawing() {
-}
+CDrawing::CDrawing() {}
 
-CDrawing::~CDrawing() {
-}
+CDrawing::~CDrawing() {}
 
 CDrawing* CDrawing::Get() {
 	static CDrawing sDrawing;
@@ -48,7 +46,7 @@ int CDrawing::GetStringLenght( const char *fmt, ... ) {
 	return iWidth;
 }
 
-int CDrawing::GetStringHeight( void ) {
+int CDrawing::GetStringHeight() {
 	int iWidth, iHeight;
 	g_Engine.pfnDrawConsoleStringLen( "F", &iWidth, &iHeight );
 	return iHeight;

@@ -1,10 +1,8 @@
 #include "main.hpp"
 
-CHook::CHook() {
-}
+CHook::CHook() {}
 
-CHook::~CHook() {
-}
+CHook::~CHook() {}
 
 CHook* CHook::Get() {
 	static CHook sHook;
@@ -38,6 +36,7 @@ cvar_t* RegisterVariable( char *szName, char *szValue, int flags ) {
 		return pResult;
 	return g_Engine.pfnRegisterVariable( szName, szValue, flags );
 }
+
 DWORD CHook::Initialize( LPVOID pParam ) {
 	while( !COffsets::Get()->GetRendererInfo() )
 		Sleep( 90 );

@@ -84,12 +84,12 @@ int pfnHookUserMsg( char *szMsgName, pfnUserMsgHook pfn ) {
 	}
 
 	HOOK_MSG( TeamInfo )
-		HOOK_MSG( DeathMsg )
-		HOOK_MSG( CurWeapon )
-		HOOK_MSG( SetFOV )
-		HOOK_MSG( Health )
-		HOOK_MSG( ResetHUD )
-		HOOK_MSG( Battery )
+	HOOK_MSG( DeathMsg )
+	HOOK_MSG( CurWeapon )
+	HOOK_MSG( SetFOV )
+	HOOK_MSG( Health )
+	HOOK_MSG( ResetHUD )
+	HOOK_MSG( Battery )
 
-		return g_Engine.pfnHookUserMsg( szMsgName, pfn );
+	return g_Engine.pfnHookUserMsg( szMsgName, pfn );
 }

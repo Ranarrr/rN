@@ -1,5 +1,5 @@
-#ifndef _ESP_H_
-#define _ESP_H_
+#ifndef ESP_HPP
+#define ESP_HPP
 
 class CEsp {
 private:
@@ -13,4 +13,4 @@ public:
 	void RegisterCVars();
 };
 
-#endif // ESP_H_
+#endif // ESP_HPP

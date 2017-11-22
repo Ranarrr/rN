@@ -1,17 +1,15 @@
 #include "offsets.hpp"
 
-COffsets::COffsets() {
-}
+COffsets::COffsets() {}
 
-COffsets::~COffsets() {
-}
+COffsets::~COffsets() {}
 
 COffsets* COffsets::Get() {
 	static COffsets sOffsets;
 	return &sOffsets;
 }
 
-bool COffsets::GetRendererInfo( void ) {
+bool COffsets::GetRendererInfo() {
 	DWORD dwGameUI = ( DWORD ) GetModuleHandleA( "GameUI.dll" );
 	DWORD dwVGui = ( DWORD ) GetModuleHandleA( "vgui.dll" );
 	DWORD dwVGui2 = ( DWORD ) GetModuleHandleA( "vgui2.dll" );
@@ -69,7 +67,7 @@ BOOL COffsets::CompareMem( const UCHAR *buff1, const UCHAR *buff2, UINT size ) {
 	return TRUE;
 }
 
-void* COffsets::GetSpeedPtr( void ) {
+void *COffsets::GetSpeedPtr() {
 	DWORD Old = NULL;
 	PCHAR String = "Texture load: %6.1fms";
 	DWORD Address = ( DWORD ) FindMemoryClone( dwHardwareBase, dwHardwareBase + dwHardwareSize, String, strlen( String ) );
@@ -97,7 +95,7 @@ ULONG COffsets::FindRef( const ULONG start, const ULONG end, const ULONG address
 	return FindMemoryClone( start, end, Pattern, sizeof( Pattern ) - 1 );
 }
 
-void* COffsets::ClientFuncs( void ) {
+void *COffsets::ClientFuncs() {
 	PCHAR String = "ScreenFade";
 	DWORD Address = ( DWORD ) FindMemoryClone( dwHardwareBase, dwHardwareBase + dwHardwareSize, String, strlen( String ) );
 	PVOID ClientPtr = ( PVOID )*( PDWORD ) ( FindReference( dwHardwareBase, dwHardwareBase + dwHardwareSize, Address ) + 0x13 );
@@ -108,7 +106,7 @@ void* COffsets::ClientFuncs( void ) {
 	return ClientPtr;
 }
 
-void* COffsets::EngineFuncs( void ) {
+void *COffsets::EngineFuncs() {
 	PCHAR String = "ScreenFade";
 	DWORD Address = FindMemoryClone( dwHardwareBase, dwHardwareBase + dwHardwareSize, String, strlen( String ) );
 	PVOID EnginePtr = ( PVOID )*( PDWORD ) ( FindReference( dwHardwareBase, dwHardwareBase + dwHardwareSize, Address ) + 0x0D );
@@ -126,14 +124,14 @@ bool CheckByte( DWORD Address, BYTE Value, int Offset ) {
 		return false;
 }
 
-DWORD COffsets::EngineStudio( void ) {
+DWORD COffsets::EngineStudio() {
 start_ptr:
 	bool badptr = false;
 	DWORD dwStudio = 0;
 	PCHAR String = "Couldn't get client .dll studio model rendering interface.";
 
 	DWORD Address = FindMemoryClone( dwHardwareBase, dwHardwareBase + dwHardwareSize, String, strlen( String ) );
-	PVOID EngineStudioPtr = ( PVOID )*( PDWORD ) ( FindReference( dwHardwareBase, dwHardwareBase + dwHardwareSize, Address ) - 0x14 );
+	PVOID EngineStudioPtr = ( PVOID ) *( PDWORD ) ( FindReference( dwHardwareBase, dwHardwareBase + dwHardwareSize, Address ) - 0x14 );
 
 	if( FarProc( ( DWORD ) EngineStudioPtr, dwHardwareBase, dwHardwareEnd ) )
 		Error( XString( /*Couldn't find EngineStudioPtr #1 pointer.*/ 0x0B, 0x29, 0x2D, 0x6E415A5C, 0x555C1440, 0x15505E56, 0x5D1A7E52, 0x5A575125, 0x12363620, 0x2C29173C, 0x3B6A687D, 0x6D3E2039, 0x3F263626, 0x7B000000 ).c() );

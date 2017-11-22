@@ -44,4 +44,4 @@ struct beam_s {
 	struct particle_s	*particles;
 };
 
-#endif
+#endif // BEAMDEFH_H
