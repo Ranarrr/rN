@@ -10,15 +10,15 @@ COffsets* COffsets::Get() {
 }
 
 bool COffsets::GetRendererInfo() {
-	DWORD dwGameUI = ( DWORD ) GetModuleHandleA( "GameUI.dll" );
-	DWORD dwVGui = ( DWORD ) GetModuleHandleA( "vgui.dll" );
-	DWORD dwVGui2 = ( DWORD ) GetModuleHandleA( "vgui2.dll" );
+	DWORD dwGameUI = ( DWORD ) GetModuleHandleA( XString( /*GameUI.dll*/ 0x03, 0x0A, 0x2F, 0x68515C57, 0x667D1B52, 0x5B540000 ).c() );
+	DWORD dwVGui = ( DWORD ) GetModuleHandleA( XString( /*vgui.dll*/ 0x02, 0x08, 0x8F, 0xF9F7E4FB, 0xBDF0F9FA ).c() );
+	DWORD dwVGui2 = ( DWORD ) GetModuleHandleA( XString( /*vgui2.dll*/ 0x03, 0x09, 0x26, 0x50405D40, 0x18054841, 0x42000000 ).c() );
 
 	m_RenderType = RENDERTYPE_UNDEFINED; //For later use of OGL, if I intend to update this
 
-	dwHardwareBase = ( DWORD ) GetModuleHandle( "hw.dll" ); // Hardware
+	dwHardwareBase = ( DWORD ) GetModuleHandle( XString( /*hw.dll*/ 0x02, 0x06, 0xA4, 0xCCD288C3, 0xC4C50000 ).c() ); // Hardware
 	if( dwHardwareBase == NULL ) {
-		dwHardwareBase = ( DWORD ) GetModuleHandle( "sw.dll" ); // Software
+		dwHardwareBase = ( DWORD ) GetModuleHandle( XString( /*sw.dll*/ 0x02, 0x06, 0x9D, 0xEEE9B1C4, 0xCDCE0000 ).c() ); // Software
 		if( dwHardwareBase == NULL ) {
 			dwHardwareBase = ( DWORD ) GetModuleHandle( NULL ); // Non-Steam?
 			if( dwHardwareBase == NULL ) // Invalid module handle.
@@ -69,7 +69,7 @@ BOOL COffsets::CompareMem( const UCHAR *buff1, const UCHAR *buff2, UINT size ) {
 
 void *COffsets::GetSpeedPtr() {
 	DWORD Old = NULL;
-	PCHAR String = "Texture load: %6.1fms";
+	PCHAR String = XString( /*Texture load: %6.1fms*/ 0x06, 0x15, 0xEC, 0xB888969B, 0x858397D3, 0x989A9793, 0xC2D9DFCD, 0xD2CC9892, 0x73000000 ).c();
 	DWORD Address = ( DWORD ) FindMemoryClone( dwHardwareBase, dwHardwareBase + dwHardwareSize, String, strlen( String ) );
 	PVOID SpeedPtr = ( PVOID )*( DWORD* ) ( FindReference( dwHardwareBase, dwHardwareBase + dwHardwareSize, Address ) - 7 );
 
@@ -96,7 +96,7 @@ ULONG COffsets::FindRef( const ULONG start, const ULONG end, const ULONG address
 }
 
 void *COffsets::ClientFuncs() {
-	PCHAR String = "ScreenFade";
+	PCHAR String = XString( /*ScreenFade*/ 0x03, 0x0A, 0xCF, 0x9CB3A3B7, 0xB6BA93B7, 0xB3BD0000 ).c();
 	DWORD Address = ( DWORD ) FindMemoryClone( dwHardwareBase, dwHardwareBase + dwHardwareSize, String, strlen( String ) );
 	PVOID ClientPtr = ( PVOID )*( PDWORD ) ( FindReference( dwHardwareBase, dwHardwareBase + dwHardwareSize, Address ) + 0x13 );
 
@@ -107,7 +107,7 @@ void *COffsets::ClientFuncs() {
 }
 
 void *COffsets::EngineFuncs() {
-	PCHAR String = "ScreenFade";
+	PCHAR String = XString( /*ScreenFade*/ 0x03, 0x0A, 0x77, 0x241B0B1F, 0x1E123B1F, 0x1BE50000 ).c();
 	DWORD Address = FindMemoryClone( dwHardwareBase, dwHardwareBase + dwHardwareSize, String, strlen( String ) );
 	PVOID EnginePtr = ( PVOID )*( PDWORD ) ( FindReference( dwHardwareBase, dwHardwareBase + dwHardwareSize, Address ) + 0x0D );
 
@@ -128,7 +128,7 @@ DWORD COffsets::EngineStudio() {
 start_ptr:
 	bool badptr = false;
 	DWORD dwStudio = 0;
-	PCHAR String = "Couldn't get client .dll studio model rendering interface.";
+	PCHAR String = XString( /*Couldn't get client .dll studio model rendering interface.*/ 0x0F, 0x3A, 0xC4, 0x87AAB3AB, 0xACA7EDBF, 0xECAAABBB, 0xF0B2BEBA, 0xB1BBA2F7, 0xF6BDB6B7, 0xFCAEAAAA, 0x84888DC3, 0x898A8282, 0x84C9988E, 0x82898B9D, 0x999F95D3, 0x9D9B8292, 0x8A9F9B98, 0x99D30000 ).c();
 
 	DWORD Address = FindMemoryClone( dwHardwareBase, dwHardwareBase + dwHardwareSize, String, strlen( String ) );
 	PVOID EngineStudioPtr = ( PVOID ) *( PDWORD ) ( FindReference( dwHardwareBase, dwHardwareBase + dwHardwareSize, Address ) - 0x14 );

@@ -24,8 +24,7 @@ float Instruments::flAngleAtGround() {
 	return acos( trace->plane.normal[ 2 ] ) / M_PI * 180;
 }
 
-bool Instruments::bSurf() // if on surf or not
-{
+bool Instruments::bSurf() { // if on surf or not
 	if( flAngleAtGround() >= 45.000001 && Instruments::Get()->flGroundHeight() < 30.0f )
 		return true;
 	else
@@ -133,6 +132,101 @@ int Instruments::generaterandomintzeroandone( int Reason ) {
 			betweenzeroandone = 0;
 	}
 	return ( int ) betweenzeroandone;
+}
+
+// credits to ir0n, bONE87
+// trims whitespace from beginning and end of a string
+static std::string Trim( std::string& str ) {
+	constexpr static char whitespace[ 7 ] = "\t\n\v\f\r ";
+
+	auto not_whitespace = str.find_first_not_of( whitespace );
+	if( not_whitespace == std::string::npos )
+		return str;
+
+	str.erase( 0, not_whitespace );
+
+	auto last_not_whitespace = str.find_last_not_of( whitespace );
+	if( last_not_whitespace == std::string::npos )
+		return str;
+
+	str.erase( last_not_whitespace + 1 );
+	return str;
+}
+
+// credits to ir0n, bONE87
+// returned strings have been stripped of whitespace from beginning and end
+static std::vector< std::string > SplitString( const std::string& text, const char seperator = ',' ) {
+	constexpr static char kEscapeSequence = '\\';
+
+	std::vector< std::string > tokens;
+	std::string current;
+
+	bool is_escaping = false;
+	for( const auto& ch : text ) {
+		if( is_escaping ) {
+			current += ch;
+			is_escaping = false;
+		} else if( ch == kEscapeSequence ) {
+			is_escaping = true;
+		} else if( ch == seperator ) {
+			tokens.emplace_back( Trim( current ) );
+			current.clear();
+		} else {
+			current += ch;
+		}
+	}
+
+	if( !current.empty() || text[ text.size() - 1 ] == seperator )
+		tokens.emplace_back( Trim( current ) );
+
+	return tokens;
+}
+
+std::vector<scrollpattern> Instruments::getPatterns() {
+	FILE *pFile = fopen( szDirFile( XString( /*patterns.rn*/ 0x03, 0x0B, 0x41, 0x31233730, 0x2034293B, 0x67382500 ).c() ).c_str(), XString( /*r*/ 0x01, 0x01, 0x34, 0x46000000 ).c() );
+	std::vector<scrollpattern> ret;
+
+	if( pFile == NULL ) {
+		g_Engine.Con_Printf( XString( /*[rN] Could not get patterns.*/ 0x07, 0x1C, 0x9D, 0xC6ECD1FD, 0x81E1CCD1, 0xC9C287C6, 0xC6DE8BCB, 0xC8DA8FC0, 0xD0C6C7D1, 0xC7D8C496 ).c() );
+		return ret;
+	}
+
+	char str[ 255 ];
+	std::vector<scrollframestruct> temp;
+
+	while( !feof( pFile ) ) {
+		fgets( str, sizeof( str ), pFile );
+
+		if( strlen( str ) <= 0 || strcmp(str, "\n") == 0 ) {
+			ret.push_back( temp );
+			if( temp.size() > 0 )
+				temp.clear();
+
+			continue;
+		}
+
+		std::vector<std::string> strarr = SplitString( str );
+
+		std::string endstr;
+
+		if( strarr.size() == 4 )
+			endstr = XString( stoul( strarr.at( 0 ), nullptr, 16 ), stoul( strarr.at( 1 ), nullptr, 16 ), stoul( strarr.at( 2 ), nullptr, 16 ), stoul( strarr.at( 3 ), nullptr, 16 ) ).s();
+		else if( strarr.size() == 5 )
+			endstr = XString( stoul( strarr.at( 0 ), nullptr, 16 ), stoul( strarr.at( 1 ), nullptr, 16 ), stoul( strarr.at( 2 ), nullptr, 16 ), stoul( strarr.at( 3 ), nullptr, 16 ),
+										  stoul( strarr.at( 4 ), nullptr, 16 ) ).s();
+		else if( strarr.size() == 6 )
+			endstr = XString( stoul( strarr.at( 0 ), nullptr, 16 ), stoul( strarr.at( 1 ), nullptr, 16 ), stoul( strarr.at( 2 ), nullptr, 16 ), stoul( strarr.at( 3 ), nullptr, 16 ),
+										  stoul( strarr.at( 4 ), nullptr, 16 ), stoul( strarr.at( 5 ), nullptr, 16 ) ).s();
+
+		std::vector<std::string> last = SplitString( endstr, ' ' );
+
+		temp.push_back( scrollframestruct( atof( last.at( 1 ).c_str() ), atoi( last.at( 0 ).c_str() ) == 1 ) );
+	}
+
+	g_Engine.Con_Printf( XString( /*<rN> Successfully loaded %i patterns!*/ 0x0A, 0x25, 0xFB, 0xC78EB3C0, 0xDF537461, 0x60617675, 0x617D6566, 0x722C6161, 0x6E747476, 0x33317C36, 0x67796D6E, 0x7E6E736D,
+								  0x3E000000 ).c(), ret.size() );
+
+	return ret;
 }
 
 bool Instruments::bIsValidEnt( int idx ) {

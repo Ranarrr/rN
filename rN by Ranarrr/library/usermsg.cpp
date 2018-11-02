@@ -24,10 +24,10 @@ int TeamInfo( const char *pszName, int iSize, void *pbuf ) {
 	char *szTeam = READ_STRING();
 	_strlwr( szTeam );
 	SOtherPlayers& COP = g_OtherPlayers[ iIndex ];
-	if( !strcmp( szTeam, "terrorist" ) ) {
+	if( !strcmp( szTeam, XString( /*terrorist*/ 0x03, 0x09, 0x4F, 0x3B352320, 0x3C263C25, 0x23000000 ).c() ) ) {
 		COP.m_iTeam = 1;
 		if( iIndex == g_pLocalPlayer()->m_iIndex ) { g_pLocalPlayer()->m_iTeam = 1; }
-	} else if( !strcmp( szTeam, "ct" ) ) {
+	} else if( !strcmp( szTeam, XString( /*ct*/ 0x01, 0x02, 0x90, 0xF3E50000 ).c() ) ) {
 		COP.m_iTeam = 2;
 		if( iIndex == g_pLocalPlayer()->m_iIndex ) { g_pLocalPlayer()->m_iTeam = 2; }
 	} else {

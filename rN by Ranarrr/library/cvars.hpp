@@ -4,14 +4,16 @@
 #include "main.hpp"
 
 class CCVars {
-private:
 	CCVars();
+
 public:
 	virtual ~CCVars();
 	static CCVars*	Get();
 
-	inline void strreplace( char* buf, const char* search, const char* replace );
+	inline void strreplace( char *buf, const char *search, const char *replace );
 	inline void ExecFunc( char *name );
+
+	std::vector<scrollpattern> patterns;
 
 	float *r_norefresh;
 	float *fps_max;
@@ -31,7 +33,8 @@ public:
 		*auto_duck, *auto_duck_dist, *knifebot, *knifebot_stab, *knifebot_stab_dist, *auto_pistol, *auto_pistol_speed, *edge_jumpoff_dist, *esp_name, *esp_dist, *esp_box, *esp_ct_r_nvis,
 		*esp_ct_r_vis, *esp_t_r_nvis, *esp_t_r_vis, *esp_ct_g_nvis, *esp_ct_g_vis, *esp_t_g_nvis, *esp_t_g_vis, *esp_ct_b_nvis, *esp_ct_b_vis, *esp_t_b_nvis, *esp_t_b_vis, *esp_ct_a_nvis,
 		*esp_ct_a_vis, *esp_t_a_nvis, *esp_t_a_vis, *recoil_control, *bhop_scroll_delay, /**knifebot_slash_dist, *knifebot_teammates, *knifebot_origin, *knifebot_fov, *knifebot_aim,*/ *esp_visible/*,
-		*knifebot_follow_dist, *knifebot_follow*/, *strafe_control_helper_rayish_fix, *bhop_wog, *bhop_standup, *bhop_standup_10aa;
+		*knifebot_follow_dist, *knifebot_follow*/, *strafe_control_helper_rayish_fix, *bhop_wog, *bhop_standup, *bhop_standup_10aa, *screeninfo_mult_x, *screeninfo_mult_y, *screeninfo_velocity,
+		*screeninfo_fallspeed, *screeninfo_groundheight, *screeninfo_edgedist;
 
 	void Init();
 };

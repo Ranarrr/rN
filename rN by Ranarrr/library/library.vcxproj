@@ -112,6 +112,7 @@
     <ClInclude Include="main.hpp" />
     <ClInclude Include="hiding.hpp" />
     <ClInclude Include="hook.hpp" />
+    <ClInclude Include="scrollstructs.hpp" />
     <ClInclude Include="ValveSDK\common\beamdef.h" />
     <ClInclude Include="ValveSDK\common\cl_entity.h" />
     <ClInclude Include="ValveSDK\common\com_model.h" />

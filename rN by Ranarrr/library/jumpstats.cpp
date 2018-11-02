@@ -163,7 +163,7 @@ void CJumpStats::CL_CreateMove( usercmd_s *pCmd ) {
 						g_Engine.Con_Printf( "\n" );
 						g_Engine.Con_Printf( XString( /*Distance: %f Maxspeed: %f Prestrafe: %f Strafes: %i*/ 0x0D, 0x33, 0xE8, 0xAC80999F, 0x8D838D8A, 0xCAD1D795, 0xD4B8978F, 0x8B899F9E, 0x98C7DEDA, 0x66215271, 0x61767275, 0x696F6F31, 0x2C28682F, 0x43656072, 0x7270652D, 0x383C7300 ).c(), this->flDistance, this->flMaxspeed, this->flPrestrafe, this->iStrafes );
 						g_Engine.Con_Printf( "\n" );
-						g_Engine.Con_Printf( XString( /*rN v0.17 by Ranarrr*/ 0x05, 0x13, 0xB7, 0xC5F699CC, 0x8B928C89, 0x9FA2B8E2, 0x91A5ABA7, 0xB5BABB00 ).c() );
+						g_Engine.Con_Printf( XString( /*rN v0.18 by Ranarrr*/ 0x05, 0x13, 0x58, 0x2A177A2D, 0x6C736F67, 0x40031B43, 0x36040806, 0x1A1B1800 ).c() );
 						g_Engine.Con_Printf( "\n" );
 					}
 				}

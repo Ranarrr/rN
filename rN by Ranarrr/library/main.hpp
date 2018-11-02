@@ -42,6 +42,7 @@
 #include "ValveSDK/engine/keydefs.h"
 #include "ValveSDK/common/engine_launcher_api.h"
 
+#include "scrollstructs.hpp"
 #include "color.hpp"
 #include "entity.hpp"
 #include "hiding.hpp"
@@ -49,16 +50,14 @@
 #include "client.hpp"
 #include "drawing.hpp"
 #include "hook.hpp"
+#include "Instruments.hpp"
 #include "cvars.hpp"
 #include "jumpstats.hpp"
 #include "Command.hpp"
-#include "Instruments.hpp"
 #include "NoFlash.hpp"
 #include "esp.hpp"
 #include "xstring.hpp"
 #include "cBuddy.hpp"
-
-using namespace std;
 
 typedef struct cl_clientfuncs_s {
 	int( *Initialize ) ( cl_enginefunc_t *pEnginefuncs, int iVersion );
@@ -156,11 +155,10 @@ extern cl_enginefunc_t g_Engine;
 extern engine_studio_api_t *g_pStudio;
 extern engine_studio_api_t g_Studio;
 
-string szDirFile( char* pszName );
-string Prefix_ini();
-void add_log( int num, char * fmt, ... );
+std::string szDirFile( char* pszName );
+std::string Prefix_ini();
 
-inline char *PrefHack( char *IfCmd, string Prefix, char *Name ) {
+inline char *PrefHack( char *IfCmd, std::string Prefix, char *Name ) {
 	char *o = new char[ 64 ];
 	strcpy( o, IfCmd );
 	strcat( o, Prefix.c_str() );

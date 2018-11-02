@@ -305,6 +305,9 @@
     <ClInclude Include="cBuddy.hpp">
       <Filter>headers\Features</Filter>
     </ClInclude>
+    <ClInclude Include="scrollstructs.hpp">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ValveSDK\common\interface.cpp">

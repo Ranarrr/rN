@@ -1,6 +1,8 @@
 #ifndef INSTRUMENTS_HPP
 #define INSTRUMENTS_HPP
 
+#pragma once
+
 #include "main.hpp"
 
 class Instruments {
@@ -13,6 +15,7 @@ public:
 	virtual ~Instruments();
 	static Instruments* Get();
 
+	std::vector<scrollpattern> getPatterns();
 	float	flGroundHeight();
 	float	flEdgeDist();
 	bool	bIsValidEnt( int idx );

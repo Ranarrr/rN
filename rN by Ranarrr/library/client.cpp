@@ -1,22 +1,27 @@
 ﻿#include "main.hpp"
 
-// rN 0.16 by Ranarrr source release version.
+// rN 0.18 by Ranarrr source release version.
 // Credits:
 //
 // - RIscRIpt
-// - Terazoid ( idk how to type his name.. )
+// - Terazoid
 // - ir0n ( big love to a big man <3 )
-// - _or_75 ( cause ur base helped me a little with angleatground, theres a bug btw :) ( hint: 45 | 45.000001) )
-// - GreySkull ( CrapY, you're the man <3 )
+// - _or_75 ( cause ur base helped me a little with angleatground, theres a bug btw :) ( hint: 45.000001 ! 45 ) )
+// - GreySkull ( CrapY ) where are you?
 // - Others whom i've excluded..
 
 //Other stuff
 DWORD_PTR g_dwSpeed;
 POINT current_m_pos, last_m_pos;
 
+// pattern
+bool shouldgetPattern = true;
+int tick = 0;
+scrollpattern pattern;
+
 //ints
 int mxl, mxr, addstr_delay;
-
+	
 //bools
 bool bDGstrafe, FreeLookEnabled, DSTR, DJB;
 
@@ -110,11 +115,30 @@ void CClient::HUD_Redraw( float time, int intermission ) {
 	g_Client.HUD_Redraw( time, intermission );
 
 	if( CCVars::Get()->screeninfo->value ) {
-		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.65, Color::White(), XString( /*Velocity: %f*/ 0x03, 0x0C, 0xDE, 0x88BA8C8E, 0x818A909C, 0xDCC7CD8F ).c(), g_pLocalPlayer()->m_flVelocity );
-		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.67, Color::White(), XString( /*FallSpeed: %f*/ 0x04, 0x0D, 0xAC, 0xEACCC2C3, 0xE3C1D7D6, 0xD08F9692, 0xDE000000 ).c(), g_pLocalPlayer()->m_flFallSpeed );
-		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.69, Color::White(), XString( /*GroundHeight: %f*/ 0x04, 0x10, 0xCB, 0x8CBEA2BB, 0xA1B499B7, 0xBAB3BDA2, 0xEDF8FCBC ).c(), Instruments::Get()->flGroundHeight() );
-		CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth / 2, g_Screen.m_iHeight * 0.71, Color::White(), XString( /*Edge dist: %f*/ 0x04, 0x0D, 0xC8, 0x8DADADAE, 0xECA9A7BC, 0xA4EBF2F6, 0xB2000000 ).c(), Instruments::Get()->flEdgeDist() );
+		float spacing = 0.f;
+
+		if( CCVars::Get()->screeninfo_velocity->value ) {
+			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth * CCVars::Get()->screeninfo_mult_x->value, g_Screen.m_iHeight * CCVars::Get()->screeninfo_mult_y->value, Color::White(),
+											   XString( /*Velocity: %f*/ 0x03, 0x0C, 0xDE, 0x88BA8C8E, 0x818A909C, 0xDCC7CD8F ).c(), g_pLocalPlayer()->m_flVelocity );
+			spacing += 0.02f;
+		}
 		
+		if( CCVars::Get()->screeninfo_fallspeed->value ) {
+			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth * CCVars::Get()->screeninfo_mult_x->value, g_Screen.m_iHeight * ( CCVars::Get()->screeninfo_mult_y->value + spacing ), Color::White(),
+											   XString( /*FallSpeed: %f*/ 0x04, 0x0D, 0xAC, 0xEACCC2C3, 0xE3C1D7D6, 0xD08F9692, 0xDE000000 ).c(), g_pLocalPlayer()->m_flFallSpeed );
+			spacing += 0.02f;
+		}
+		
+		if( CCVars::Get()->screeninfo_groundheight->value ) {
+			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth * CCVars::Get()->screeninfo_mult_x->value, g_Screen.m_iHeight * ( CCVars::Get()->screeninfo_mult_y->value + spacing ), Color::White(),
+											   XString( /*GroundHeight: %f*/ 0x04, 0x10, 0xCB, 0x8CBEA2BB, 0xA1B499B7, 0xBAB3BDA2, 0xEDF8FCBC ).c(), Instruments::Get()->flGroundHeight() );
+			spacing += 0.02f;
+		}
+		
+		if( CCVars::Get()->screeninfo_edgedist->value )
+			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth * CCVars::Get()->screeninfo_mult_x->value, g_Screen.m_iHeight * ( CCVars::Get()->screeninfo_mult_y->value + spacing ), Color::White(),
+										   XString( /*Edge dist: %f*/ 0x04, 0x0D, 0xC8, 0x8DADADAE, 0xECA9A7BC, 0xA4EBF2F6, 0xB2000000 ).c(), Instruments::Get()->flEdgeDist() );
+
 		CJumpStats::Get()->HUD_Redraw();
 
 		CNoFlash::Get()->NoFlashOn();
@@ -717,60 +741,60 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 			break;
 		}
 		case 4:
-		{
-			if( g_pLocalPlayer()->m_iMX < CCVars::Get()->strafe_control_helper_althreshold->value && mxl > CCVars::Get()->strafe_control_helper_adelay->value ) // MOUSE MOVES LEFT
 			{
-				mxr = 0;
-				if( CCVars::Get()->strafe_control_helper_sidemove_random )
-					pCmd->forwardmove = -CCVars::Get()->strafe_control_helper_sidemove->value;
-				else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
-					pCmd->forwardmove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
+				if( g_pLocalPlayer()->m_iMX < CCVars::Get()->strafe_control_helper_althreshold->value && mxl > CCVars::Get()->strafe_control_helper_adelay->value ) // MOUSE MOVES LEFT
+				{
+					mxr = 0;
+					if( CCVars::Get()->strafe_control_helper_sidemove_random )
+						pCmd->forwardmove = -CCVars::Get()->strafe_control_helper_sidemove->value;
+					else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
+						pCmd->forwardmove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
 
-				if( CCVars::Get()->strafe_control_helper_forwardmove_random )
-					pCmd->sidemove = -CCVars::Get()->strafe_control_helper_forwardmove->value;
-				else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )
-					pCmd->sidemove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
+					if( CCVars::Get()->strafe_control_helper_forwardmove_random )
+						pCmd->sidemove = -CCVars::Get()->strafe_control_helper_forwardmove->value;
+					else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )
+						pCmd->sidemove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
 
-				if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
-					if( istrs < CCVars::Get()->strafe_control_helper_max_strafe->value ) {
-						pCmd->buttons &= ~IN_FORWARD;
-						pCmd->buttons |= IN_BACK;
-						if( pCmd->buttons&IN_BACK && bstrs ) {
-							++istrs;
-							bstrs = false;
+					if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
+						if( istrs < CCVars::Get()->strafe_control_helper_max_strafe->value ) {
+							pCmd->buttons &= ~IN_FORWARD;
+							pCmd->buttons |= IN_BACK;
+							if( pCmd->buttons&IN_BACK && bstrs ) {
+								++istrs;
+								bstrs = false;
+							}
 						}
 					}
-				}
-				if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
-					tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
-			} else if( g_pLocalPlayer()->m_iMX > CCVars::Get()->strafe_control_helper_arthreshold->value && mxr > CCVars::Get()->strafe_control_helper_adelay->value )// MOUSE MOVES RIGHT
-			{
-				mxl = 0;
-				if( CCVars::Get()->strafe_control_helper_sidemove_random )
-					pCmd->forwardmove = +CCVars::Get()->strafe_control_helper_sidemove->value;
-				else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
-					pCmd->forwardmove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
+					if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+						tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
+				} else if( g_pLocalPlayer()->m_iMX > CCVars::Get()->strafe_control_helper_arthreshold->value && mxr > CCVars::Get()->strafe_control_helper_adelay->value )// MOUSE MOVES RIGHT
+				{
+					mxl = 0;
+					if( CCVars::Get()->strafe_control_helper_sidemove_random )
+						pCmd->forwardmove = +CCVars::Get()->strafe_control_helper_sidemove->value;
+					else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
+						pCmd->forwardmove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
 
-				if( CCVars::Get()->strafe_control_helper_forwardmove_random )
-					pCmd->sidemove = -CCVars::Get()->strafe_control_helper_forwardmove->value;
-				else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )
-					pCmd->sidemove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
+					if( CCVars::Get()->strafe_control_helper_forwardmove_random )
+						pCmd->sidemove = -CCVars::Get()->strafe_control_helper_forwardmove->value;
+					else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )
+						pCmd->sidemove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
 
-				if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
-					if( istrs < CCVars::Get()->strafe_control_helper_max_strafe->value ) {
-						pCmd->buttons &= ~IN_BACK;
-						pCmd->buttons |= IN_FORWARD;
-						if( pCmd->buttons&IN_FORWARD && !bstrs ) {
-							++istrs;
-							bstrs = true;
+					if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
+						if( istrs < CCVars::Get()->strafe_control_helper_max_strafe->value ) {
+							pCmd->buttons &= ~IN_BACK;
+							pCmd->buttons |= IN_FORWARD;
+							if( pCmd->buttons&IN_FORWARD && !bstrs ) {
+								++istrs;
+								bstrs = true;
+							}
 						}
 					}
+					if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+						tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
 				}
-				if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
-					tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
+				break;
 			}
-			break;
-		}
 		}
 		g_Engine.SetViewAngles( tmp_va );
 	} else if( g_pLocalPlayer()->m_iFlags&FL_ONGROUND )
@@ -778,10 +802,16 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	//--------------------------------------------------------
 
 	//BHOP ---------------------------------------------------
-	if( CCVars::Get()->bhop->value && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2
-		&& pCmd->buttons&IN_JUMP && GetAsyncKeyState( VK_SPACE ) ) {
+	// Bhop method 1
+	if( CCVars::Get()->bhop->value == 1.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2
+		&& pCmd->buttons & IN_JUMP && GetAsyncKeyState( VK_SPACE ) ) {
 
-		float playerheight = Instruments::Get()->PlayerHeight( 1 );
+		float playerheight = Instruments::Get()->PlayerHeight( 1 ), groundheight;
+
+		if( g_pLocalPlayer()->m_bInDuckCmd || g_pLocalPlayer()->m_iUseHull == 1 )
+			groundheight = Instruments::Get()->flGroundHeight() + playerheight;
+		else
+			groundheight = Instruments::Get()->flGroundHeight();
 
 		if( Instruments::Get()->bSurf() || ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity > CCVars::Get()->bhop_wog->value ) )
 			pCmd->buttons &= ~IN_JUMP;
@@ -789,52 +819,137 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 		if( CCVars::Get()->bhop_standup->value && !GetAsyncKeyState( VK_CONTROL ) ) { // most simple fix you could ever encounter.. this standup shit doesn't even really work lol..
 			// it is not encorporated perfectly..
 			if( CCVars::Get()->bhop_standup_10aa->value ) {
-				if( Instruments::Get()->flGroundHeight() <= CCVars::Get()->bhop_standup->value )
+				if( groundheight <= CCVars::Get()->bhop_standup->value )
 					pCmd->buttons |= IN_DUCK;
 				else
 					pCmd->buttons &= ~IN_DUCK;
 			} else {
-				if( Instruments::Get()->flGroundHeight() <= CCVars::Get()->bhop_standup->value )
+				if( groundheight <= CCVars::Get()->bhop_standup->value )
 					pCmd->buttons &= ~IN_DUCK;
 				else
 					pCmd->buttons |= IN_DUCK;
 			}
 		}
-		
-		// otherwise it won't jump when you stand on ground, im not sure..
-		if( Instruments::Get()->flGroundHeight() <= CCVars::Get()->bhop_start->value )
-			pCmd->buttons ^= IN_JUMP;
 
-		if( g_pLocalPlayer()->m_bInDuckCmd || g_pLocalPlayer()->m_iUseHull == 1 ) {
-			if( Instruments::Get()->flGroundHeight() + playerheight <= CCVars::Get()->bhop_start->value ) {
-				g_pLocalPlayer()->bDBhopDucked ? pCmd->buttons ^= IN_JUMP : pCmd->buttons &= ~IN_JUMP;
-				// if( g_pEngine->pfnRandomLong( 0, 2 ) ) // truly random, although a lot worse bhop than usual, possible fix for that, easily. too lazy atm to fix it tho..
-				g_pLocalPlayer()->bDBhopDucked = !g_pLocalPlayer()->bDBhopDucked;
-			}
-		} else {
-			if( Instruments::Get()->flGroundHeight() <= CCVars::Get()->bhop_start->value ) {
-				g_pLocalPlayer()->bDBhopNotDucked ? pCmd->buttons ^= IN_JUMP : pCmd->buttons &= ~IN_JUMP;
-				// if( g_pEngine->pfnRandomLong( 0, 2 ) ) // to make it really random. not for democheckers, somehow they detect it either way.. something about sending through cmd?
-				g_pLocalPlayer()->bDBhopNotDucked = !g_pLocalPlayer()->bDBhopNotDucked;
-			}
+		// otherwise it won't jump when you stand on ground, because of the on/off switch
+		if( groundheight <= CCVars::Get()->bhop_start->value )
+			pCmd->buttons |= IN_JUMP;
+
+		if( groundheight <= CCVars::Get()->bhop_start->value ) {
+			g_pLocalPlayer()->bDBhop ? pCmd->buttons |= IN_JUMP : pCmd->buttons &= ~IN_JUMP;
+			// if( g_pEngine->pfnRandomLong( 0, 2 ) ) // to make it really random. not for democheckers, somehow they detect it either way.. something about sending through cmd?
+			g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
 		}
 
 		if( g_pLocalPlayer()->m_flFallSpeed > 0 ) {
-			if( g_pLocalPlayer()->m_bInDuckCmd ) {
-				if( Instruments::Get()->flGroundHeight() + playerheight >= CCVars::Get()->bhop_start->value )
-					pCmd->buttons &= ~IN_JUMP;
-			} else {
-				if( Instruments::Get()->flGroundHeight() >= CCVars::Get()->bhop_start->value )
-					pCmd->buttons &= ~IN_JUMP;
-			}
+			if( groundheight >= CCVars::Get()->bhop_start->value )
+				pCmd->buttons &= ~IN_JUMP;
 		} else if( g_pLocalPlayer()->m_flFallSpeed < 0 ) {
-			if( g_pLocalPlayer()->m_bInDuckCmd ) {
-				if( Instruments::Get()->flGroundHeight() + playerheight >= CCVars::Get()->bhop_end->value )
-					pCmd->buttons &= ~IN_JUMP;
-			} else {
-				if( Instruments::Get()->flGroundHeight() >= CCVars::Get()->bhop_end->value )
-					pCmd->buttons &= ~IN_JUMP;
+			if( groundheight >= CCVars::Get()->bhop_end->value )
+				pCmd->buttons &= ~IN_JUMP;
+		}
+	}
+
+	// Bhop method 2
+	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) ) {
+		if( shouldgetPattern ) {
+			pattern = CCVars::Get()->patterns.at( g_pEngine->pfnRandomLong( 0, CCVars::Get()->patterns.size() - 1 ) );
+            tick = 0;
+			shouldgetPattern = false;
+		}
+
+		float playerheight = Instruments::Get()->PlayerHeight( 1 ), groundheight;
+
+		if( g_pLocalPlayer()->m_bInDuckCmd || g_pLocalPlayer()->m_iUseHull == 1 )
+			groundheight = Instruments::Get()->flGroundHeight() + playerheight;
+		else
+			groundheight = Instruments::Get()->flGroundHeight();
+
+		if( Instruments::Get()->bSurf() || ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity > CCVars::Get()->bhop_wog->value ) )
+			pCmd->buttons &= ~IN_JUMP;
+
+		if( g_pLocalPlayer()->m_flFallSpeed >= 0.f ) {
+			if( groundheight <= pattern.getStart() ) {
+				if( tick < pattern.getscrollframes().size() && pattern.getscrollframes().at( tick ).didframescroll() ) {
+					g_pEngine->pfnClientCmd( "+jump -1" );
+					g_pEngine->pfnClientCmd( "-jump -1" );
+				}
+				tick++;
 			}
+		} else {
+			if( groundheight <= pattern.getEnd() ) {
+				if( tick < pattern.getscrollframes().size() && pattern.getscrollframes().at( tick ).didframescroll() ) {
+					g_pEngine->pfnClientCmd( "+jump -1" );
+					g_pEngine->pfnClientCmd( "-jump -1" );
+				}
+				tick++;
+			}
+		}
+
+		if( tick >= pattern.getTickLength() )
+			shouldgetPattern = true;
+	}
+
+	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType == MOVETYPE_FLY && GetAsyncKeyState( VK_SPACE ) ) {
+		g_pEngine->pfnClientCmd( "+jump -1" );
+		g_pEngine->pfnClientCmd( "-jump -1" );
+	}
+
+	// Bhop method 3
+	if( CCVars::Get()->bhop->value == 3.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2
+		&& GetAsyncKeyState( VK_SPACE ) ) {
+
+		float playerheight = Instruments::Get()->PlayerHeight( 1 ), groundheight, groundheightinframes = Instruments::Get()->flGroundDistMeasuredInFrames();
+
+		if( g_pLocalPlayer()->m_bInDuckCmd || g_pLocalPlayer()->m_iUseHull == 1 )
+			groundheight = Instruments::Get()->flGroundHeight() + playerheight;
+		else
+			groundheight = Instruments::Get()->flGroundHeight();
+
+		if( Instruments::Get()->bSurf() || ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity > CCVars::Get()->bhop_wog->value ) )
+			pCmd->buttons &= ~IN_JUMP;
+
+		if( CCVars::Get()->bhop_standup->value && !GetAsyncKeyState( VK_CONTROL ) ) { // most simple fix you could ever encounter.. this standup shit doesn't even really work lol..
+			// it is not encorporated perfectly..
+			if( CCVars::Get()->bhop_standup_10aa->value ) {
+				if( groundheight <= CCVars::Get()->bhop_standup->value )
+					pCmd->buttons |= IN_DUCK;
+				else
+					pCmd->buttons &= ~IN_DUCK;
+			} else {
+				if( groundheight <= CCVars::Get()->bhop_standup->value )
+					pCmd->buttons &= ~IN_DUCK;
+				else
+					pCmd->buttons |= IN_DUCK;
+			}
+		}
+
+		if( g_pLocalPlayer()->m_flFallSpeed >= 0 ) {
+			if( groundheight <= CCVars::Get()->bhop_start->value ) {
+				if( g_pLocalPlayer()->bDBhop ) {
+					g_pEngine->pfnClientCmd( "+jump -1" );
+					g_pEngine->pfnClientCmd( "-jump -1" );
+				}
+
+				if( g_pEngine->pfnRandomLong( 0, 3 ) && groundheightinframes > 1.f )
+					g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
+				else if( groundheightinframes <= 1.f )
+					g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
+			} else
+				pCmd->buttons &= ~IN_JUMP;
+		} else if( g_pLocalPlayer()->m_flFallSpeed <= 0 ) {
+			if( groundheight <= CCVars::Get()->bhop_end->value ) {
+				if( g_pLocalPlayer()->bDBhop ) {
+					g_pEngine->pfnClientCmd( "+jump -1" );
+					g_pEngine->pfnClientCmd( "-jump -1" );
+				}
+
+				if( g_pEngine->pfnRandomLong( 0, 3 ) && groundheightinframes > 1.f )
+					g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
+				else if( groundheightinframes <= 1.f )
+					g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
+			} else
+				pCmd->buttons &= ~IN_JUMP;
 		}
 	}
 	//--------------------------------------------------------

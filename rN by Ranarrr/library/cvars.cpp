@@ -53,7 +53,7 @@ void CCVars::Init() {
 	CCVars::Get()->ExecFunc( XString( /*rN.cfg*/ 0x02, 0x06, 0x1E, 0x6C510E42, 0x44440000 ).c() );
 
 	g_Engine.Con_Printf( "\n\t\t" );
-	g_Engine.Con_Printf( XString( /*rN v0.17 by Ranarrr*/ 0x05, 0x13, 0xB7, 0xC5F699CC, 0x8B928C89, 0x9FA2B8E2, 0x91A5ABA7, 0xB5BABB00 ).c() );
+	g_Engine.Con_Printf( XString( /*rN v0.18 by Ranarrr*/ 0x05, 0x13, 0x58, 0x2A177A2D, 0x6C736F67, 0x40031B43, 0x36040806, 0x1A1B1800 ).c() );
 	g_Engine.Con_Printf( "\n\t\t" );
 	g_Engine.Con_Printf( XString( /*Want to thank <3:*/ 0x05, 0x11, 0x36, 0x6156564D, 0x1A4F531D, 0x4A57212F, 0x29637876, 0x7C000000 ).c() );
 	g_Engine.Con_Printf( "\n\n\t\t\t\t\t\t" );
@@ -66,6 +66,11 @@ void CCVars::Init() {
 	g_Engine.Con_Printf( XString( /*<rN> Your prefix is %s*/ 0x06, 0x16, 0xE2, 0xDE91AADB, 0xC6BE879C, 0x98CB9C9F, 0x8B899989, 0xD29A87D5, 0xD3840000 ).c(), Prefix_ini().c_str() );
 	g_Engine.Con_Printf( "\n\t\t\t" );
 	g_Engine.Con_Printf( XString( /*<rN> GL & HF*/ 0x03, 0x0C, 0xA9, 0x95D8E592, 0x8DE9E390, 0x9792FBF2 ).c() );
+	g_Engine.Con_Printf( "\n" );
+	
+	// initialize patterns (intentionally vague)
+	g_Engine.Con_Printf( "\t\t\t" );
+	patterns = Instruments::Get()->getPatterns();
 	g_Engine.Con_Printf( "\n" );
 
 	// me and GreySkull discussing implementation of custom prefix through TeamViewer (because the one i have now is absolute garbage)
@@ -106,8 +111,6 @@ void CCVars::Init() {
 	And then that can register everything and you only have to do: registerCommand("asdf", 12);
 	It will auto make the prefix and everything :D
 	true :p woosp
-
-
 	*/
 
 	/*rN v0.10*/ bhop = g_pEngine->pfnRegisterVariable( PrefHack( "", Prefix_ini(), "bhop" ), "1", NULL );
@@ -138,7 +141,7 @@ void CCVars::Init() {
 	/*rN v0.10*/ strafe_control_helper_sidemove_random_min = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "strafe_control_helper_sidemove_random_min" ), "100", NULL );
 	/*rN v0.10*/ speed = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "speed" ), "1000", NULL );
 	/*rN v0.10*/ fullbright = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "fullbright" ), "0", NULL );
-	/*rN v0.10*/ strafe_control_speed = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "strafe_control_speed" ), "1.2", NULL );
+	/*rN v0.10*/ strafe_control_speed = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "strafe_control_speed" ), "0.8", NULL );
 	/*rN v0.10*/ strafe_control_helper = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "strafe_control_helper" ), "0", NULL );
 	/*rN v0.10*/ strafe_control_helper_add_strafe = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "strafe_control_helper_add_strafe" ), "0", NULL );
 	/*rN v0.10*/ strafe_hack_fps_boost = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "strafe_hack_fps_boost" ), "1", NULL );
@@ -199,8 +202,15 @@ void CCVars::Init() {
 
 	/*rN v0.16*/ strafe_control_helper_rayish_fix = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "strafe_control_helper_rayish_fix" ), "1", NULL );
 	/*rN v0.16*/ bhop_wog = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "bhop_wog" ), "299", NULL );
-	/*rN v0.16*/ bhop_standup = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "bhop_standup" ), "1", NULL );
+	/*rN v0.16*/ bhop_standup = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "bhop_standup" ), "0", NULL );
 	/*rN v0.16*/ bhop_standup_10aa = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "bhop_standup_10aa" ), "0", NULL );
+
+	/*rN v0.18*/ screeninfo_mult_x = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "screeninfo_mult_x" ), "0.5", NULL );
+	/*rN v0.18*/ screeninfo_mult_y = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "screeninfo_mult_y" ), "0.67", NULL );
+	/*rN v0.18*/ screeninfo_velocity = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "screeninfo_velocity" ), "1", NULL );
+	/*rN v0.18*/ screeninfo_fallspeed = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "screeninfo_fallspeed" ), "0", NULL );
+	/*rN v0.18*/ screeninfo_groundheight = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "screeninfo_groundheight" ), "1", NULL );
+	/*rN v0.18*/ screeninfo_edgedist = g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "screeninfo_edgedist" ), "1", NULL );
 
 	//cBuddy::Get()->RegisterCmds();
 	CClient::Get()->RegisterCmds();

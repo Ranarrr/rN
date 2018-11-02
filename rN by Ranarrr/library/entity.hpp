@@ -9,7 +9,7 @@ public:
 
 	float m_flFrametime, m_flFallSpeed, m_flVelocity, m_vecPunchAngle[ 3 ], m_flClientMaxSpeed, m_flMaxSpeed;
 
-	bool m_bInDuckCmd, m_bInDuckppmove, m_bIsAlive, m_bIML, m_bIMR, m_bIF, m_bIB, m_bIA, m_bOnSteam, m_bIsSteam, bDBhopDucked, bDBhopNotDucked, m_bIsConnected;
+	bool m_bInDuckCmd, m_bInDuckppmove, m_bIsAlive, m_bIML, m_bIMR, m_bIF, m_bIB, m_bIA, m_bOnSteam, m_bIsSteam, bDBhop, m_bIsConnected;
 
 	// m_iUseHull - 0 = regular player hull, 1 = ducked player hull, 2 = point hull
 	// m_iWaterLevel - 0 = not touching water, 1 = water at feet, 2 = covered in water to chest can swim if ducking, 3 = covered in water/swimming
