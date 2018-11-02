@@ -67,6 +67,10 @@ void FreeLook() {
 	}
 }
 
+void reload_patterns() {
+	CCVars::Get()->patterns = Instruments::Get()->getPatterns();
+}
+
 CClient::CClient() {
 }
 
@@ -109,6 +113,7 @@ void CClient::RegisterCmds() {
 	g_Engine.pfnAddCommand( PrefHack( "+", Prefix_ini(), "jumpbug" ), jbon );
 	g_Engine.pfnAddCommand( PrefHack( "-", Prefix_ini(), "jumpbug" ), jboff );
 	g_Engine.pfnAddCommand( PrefHack( "", Prefix_ini(), "freelook" ), FreeLook );
+	g_Engine.pfnAddCommand( PrefHack( "", Prefix_ini(), "patterns_reload" ), reload_patterns );
 }
 
 void CClient::HUD_Redraw( float time, int intermission ) {
@@ -851,7 +856,7 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	}
 
 	// Bhop method 2
-	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) ) {
+	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) && CCVars::Get()->patterns.size() != 0 ) {
 		if( shouldgetPattern ) {
 			pattern = CCVars::Get()->patterns.at( g_pEngine->pfnRandomLong( 0, CCVars::Get()->patterns.size() - 1 ) );
             tick = 0;
@@ -888,6 +893,14 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 
 		if( tick >= pattern.getTickLength() )
 			shouldgetPattern = true;
+	} else if( CCVars::Get()->patterns.size() == 0 ) {
+		g_pEngine->pfnConsolePrint( "\t\t\t" );
+		g_pEngine->pfnConsolePrint( XString( /*<rN> Patterns failed to load! Please reload the patterns using the command #rN^pattern_reload!*/ 0x18, 0x5E, 0x11, 0x2D605D2A, 0x3546766C, 0x6D7F6972, 0x6E3E7941,
+											 0x484E4640, 0x05524808, 0x45454A48, 0x0C0E7F5C, 0x54534051, 0x15445254, 0x565B5F1C, 0x49565A60, 0x31233730, 0x2034293B, 0x693F3825, 0x23296F24, 0x39377337, 0x3A3B3A39,
+											 0x373E7B7F, 0x2F100110, 0x00161701, 0x1708381A, 0x0C06040D, 0x094F0000 ).c() );
+		g_pEngine->pfnConsolePrint("\n");
+		g_pEngine->pfnConsolePrint( XString( /*<rN> Bhop value has been set to 1!*/ 0x09, 0x22, 0xC3, 0xFFB68BF8, 0xE78AA1A5, 0xBBECBBAF, 0xA3A5B4F2, 0xBBB5A6F6, 0xB5BDBCB4, 0xFBAFB8AA, 0xFF948EC2, 0xD2C50000 ).c() );
+		CCVars::Get()->bhop->value = 1;
 	}
 
 	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType == MOVETYPE_FLY && GetAsyncKeyState( VK_SPACE ) ) {

@@ -40,6 +40,8 @@ inline void CCVars::ExecFunc( char *name ) {
 	fclose( pFile );
 }
 
+
+
 void exec() {
 	if( g_pEngine->Cmd_Argc() == 2 )
 		CCVars::Get()->ExecFunc( g_Engine.Cmd_Argv( 1 ) );
