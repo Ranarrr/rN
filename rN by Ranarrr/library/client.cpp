@@ -127,7 +127,7 @@ void CClient::HUD_Redraw( float time, int intermission ) {
 											   XString( /*Velocity: %f*/ 0x03, 0x0C, 0xDE, 0x88BA8C8E, 0x818A909C, 0xDCC7CD8F ).c(), g_pLocalPlayer()->m_flVelocity );
 			spacing += 0.02f;
 		}
-		
+
 		if( CCVars::Get()->screeninfo_fallspeed->value ) {
 			CDrawing::Get()->DrawStringCenter( g_Screen.m_iWidth * CCVars::Get()->screeninfo_mult_x->value, g_Screen.m_iHeight * ( CCVars::Get()->screeninfo_mult_y->value + spacing ), Color::White(),
 											   XString( /*FallSpeed: %f*/ 0x04, 0x0D, 0xAC, 0xEACCC2C3, 0xE3C1D7D6, 0xD08F9692, 0xDE000000 ).c(), g_pLocalPlayer()->m_flFallSpeed );
@@ -155,8 +155,8 @@ void CClient::HUD_Redraw( float time, int intermission ) {
 			int y = g_Screen.m_iHeight / 2;
 			int dy = g_Screen.m_iHeight / 90;
 			int dx = g_Screen.m_iWidth / 90;
-			x -= ( dx*( punchangle.y ) );
-			y += ( dy*( punchangle.x ) );
+			x -= ( dx * ( punchangle.y ) );
+			y += ( dy * ( punchangle.x ) );
 
 			CDrawing::Get()->DrawRectangleOutlined( g_Screen.m_iWidth / 2 - g_pLocalPlayer()->m_vecPunchAngle[ 1 ] * 10 - 1, g_Screen.m_iHeight / 2 + g_pLocalPlayer()->m_vecPunchAngle[ 0 ] * 10 - 1, 3, 3, Color::White(), Color::Black() );
 		}
@@ -903,11 +903,6 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 		CCVars::Get()->bhop->value = 1;
 	}
 
-	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType == MOVETYPE_FLY && GetAsyncKeyState( VK_SPACE ) ) {
-		g_pEngine->pfnClientCmd( "+jump -1" );
-		g_pEngine->pfnClientCmd( "-jump -1" );
-	}
-
 	// Bhop method 3
 	if( CCVars::Get()->bhop->value == 3.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2
 		&& GetAsyncKeyState( VK_SPACE ) ) {
@@ -964,6 +959,11 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 			} else
 				pCmd->buttons &= ~IN_JUMP;
 		}
+	}
+
+	if( ( CCVars::Get()->bhop->value == 2.f || CCVars::Get()->bhop->value == 3.f ) && g_pLocalPlayer()->m_iMoveType == MOVETYPE_FLY && GetAsyncKeyState( VK_SPACE ) ) {
+		g_pEngine->pfnClientCmd( "+jump -1" );
+		g_pEngine->pfnClientCmd( "-jump -1" );
 	}
 	//--------------------------------------------------------
 
