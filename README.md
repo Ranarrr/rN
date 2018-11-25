@@ -3,7 +3,7 @@ A cs 1.6 hack (MOD SPECIFIC) (Hide'n'Seek)
 https://github.com/Ranarrr/rN
 
 **BEWARE**
-This solution is extremely unorganized!
+<s>This solution is extremely unorganized!</s>
 
 # TODO-List
 
