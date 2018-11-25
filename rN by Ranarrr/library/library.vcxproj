@@ -22,6 +22,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -42,7 +43,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -55,6 +56,9 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ENGINEHACKBASENEW_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -81,6 +85,9 @@
       <MinimalRebuild>
       </MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -97,118 +104,89 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="cBuddy.hpp" />
-    <ClInclude Include="esp.hpp" />
-    <ClInclude Include="Instruments.hpp" />
-    <ClInclude Include="color.hpp" />
-    <ClInclude Include="Command.hpp" />
-    <ClInclude Include="cvars.hpp" />
-    <ClInclude Include="entity.hpp" />
-    <ClInclude Include="jumpstats.hpp" />
-    <ClInclude Include="NoFlash.hpp" />
-    <ClInclude Include="offsets.hpp" />
-    <ClInclude Include="client.hpp" />
-    <ClInclude Include="drawing.hpp" />
-    <ClInclude Include="main.hpp" />
-    <ClInclude Include="hiding.hpp" />
-    <ClInclude Include="hook.hpp" />
-    <ClInclude Include="scrollstructs.hpp" />
-    <ClInclude Include="ValveSDK\common\beamdef.h" />
-    <ClInclude Include="ValveSDK\common\cl_entity.h" />
-    <ClInclude Include="ValveSDK\common\com_model.h" />
-    <ClInclude Include="ValveSDK\common\const.h" />
-    <ClInclude Include="ValveSDK\common\con_nprint.h" />
-    <ClInclude Include="ValveSDK\common\crc.h" />
-    <ClInclude Include="ValveSDK\common\cvardef.h" />
-    <ClInclude Include="ValveSDK\common\demo_api.h" />
-    <ClInclude Include="ValveSDK\common\director_cmds.h" />
-    <ClInclude Include="ValveSDK\common\dlight.h" />
-    <ClInclude Include="ValveSDK\common\dll_state.h" />
-    <ClInclude Include="ValveSDK\common\engine_launcher_api.h" />
-    <ClInclude Include="ValveSDK\common\entity_state.h" />
-    <ClInclude Include="ValveSDK\common\entity_types.h" />
-    <ClInclude Include="ValveSDK\common\event_api.h" />
-    <ClInclude Include="ValveSDK\common\event_args.h" />
-    <ClInclude Include="ValveSDK\common\event_flags.h" />
-    <ClInclude Include="ValveSDK\common\exefuncs.h" />
-    <ClInclude Include="ValveSDK\common\hltv.h" />
-    <ClInclude Include="ValveSDK\common\interface.h" />
-    <ClInclude Include="ValveSDK\common\in_buttons.h" />
-    <ClInclude Include="ValveSDK\common\itrackeruser.h" />
-    <ClInclude Include="ValveSDK\common\ivoicetweak.h" />
-    <ClInclude Include="ValveSDK\common\mathlib.h" />
-    <ClInclude Include="ValveSDK\common\netadr.h" />
-    <ClInclude Include="ValveSDK\common\net_api.h" />
-    <ClInclude Include="ValveSDK\common\nowin.h" />
-    <ClInclude Include="ValveSDK\common\particledef.h" />
-    <ClInclude Include="ValveSDK\common\pmtrace.h" />
-    <ClInclude Include="ValveSDK\common\qfont.h" />
-    <ClInclude Include="ValveSDK\common\ref_params.h" />
-    <ClInclude Include="ValveSDK\common\r_efx.h" />
-    <ClInclude Include="ValveSDK\common\screenfade.h" />
-    <ClInclude Include="ValveSDK\common\studio_event.h" />
-    <ClInclude Include="ValveSDK\common\triangleapi.h" />
-    <ClInclude Include="ValveSDK\common\usercmd.h" />
-    <ClInclude Include="ValveSDK\common\weaponinfo.h" />
-    <ClInclude Include="ValveSDK\engine\anorms.h" />
-    <ClInclude Include="ValveSDK\engine\beamdef.h" />
-    <ClInclude Include="ValveSDK\engine\cdll_dll.h" />
-    <ClInclude Include="ValveSDK\engine\cdll_engine_dll.h" />
-    <ClInclude Include="ValveSDK\engine\Cdll_int.h" />
-    <ClInclude Include="ValveSDK\engine\cl_dll.h" />
-    <ClInclude Include="ValveSDK\engine\cl_entity.h" />
-    <ClInclude Include="ValveSDK\engine\const.h" />
-    <ClInclude Include="ValveSDK\engine\crc.h" />
-    <ClInclude Include="ValveSDK\engine\custom.h" />
-    <ClInclude Include="ValveSDK\engine\customentity.h" />
-    <ClInclude Include="ValveSDK\engine\cvardef.h" />
-    <ClInclude Include="ValveSDK\engine\dlight.h" />
-    <ClInclude Include="ValveSDK\engine\edict.h" />
-    <ClInclude Include="ValveSDK\engine\eiface.h" />
-    <ClInclude Include="ValveSDK\engine\entity_state.h" />
-    <ClInclude Include="ValveSDK\engine\entity_types.h" />
-    <ClInclude Include="ValveSDK\engine\event_args.h" />
-    <ClInclude Include="ValveSDK\engine\event_flags.h" />
-    <ClInclude Include="ValveSDK\engine\in_buttons.h" />
-    <ClInclude Include="ValveSDK\engine\keydefs.h" />
-    <ClInclude Include="ValveSDK\engine\particledef.h" />
-    <ClInclude Include="ValveSDK\engine\pmtrace.h" />
-    <ClInclude Include="ValveSDK\engine\pm_defs.h" />
-    <ClInclude Include="ValveSDK\engine\pm_info.h" />
-    <ClInclude Include="ValveSDK\engine\progdefs.h" />
-    <ClInclude Include="ValveSDK\engine\progs.h" />
-    <ClInclude Include="ValveSDK\engine\r_efx.h" />
-    <ClInclude Include="ValveSDK\engine\r_studioint.h" />
-    <ClInclude Include="ValveSDK\engine\shake.h" />
-    <ClInclude Include="ValveSDK\engine\studio.h" />
-    <ClInclude Include="ValveSDK\engine\studio_event.h" />
-    <ClInclude Include="ValveSDK\engine\triangleapi.h" />
-    <ClInclude Include="ValveSDK\engine\usercmd.h" />
-    <ClInclude Include="ValveSDK\engine\util_vector.h" />
-    <ClInclude Include="ValveSDK\engine\weaponinfo.h" />
-    <ClInclude Include="ValveSDK\engine\wrect.h" />
-    <ClInclude Include="ValveSDK\misc\com_model.h" />
-    <ClInclude Include="ValveSDK\misc\parsemsg.h" />
-    <ClInclude Include="xstring.hpp" />
+    <ClInclude Include="architecture\features\cBuddy.hpp" />
+    <ClInclude Include="architecture\features\esp.hpp" />
+    <ClInclude Include="architecture\sdk\beamdef.hpp" />
+    <ClInclude Include="architecture\sdk\cl_entity.hpp" />
+    <ClInclude Include="architecture\sdk\com_model.hpp" />
+    <ClInclude Include="architecture\sdk\const.hpp" />
+    <ClInclude Include="architecture\sdk\cvardef.hpp" />
+    <ClInclude Include="architecture\sdk\dlight.hpp" />
+    <ClInclude Include="architecture\sdk\entity_state.hpp" />
+    <ClInclude Include="architecture\sdk\entity_types.hpp" />
+    <ClInclude Include="architecture\sdk\event_args.hpp" />
+    <ClInclude Include="architecture\sdk\event_flags.hpp" />
+    <ClInclude Include="architecture\sdk\in_buttons.hpp" />
+    <ClInclude Include="architecture\sdk\particledef.hpp" />
+    <ClInclude Include="architecture\sdk\pmtrace.hpp" />
+    <ClInclude Include="architecture\sdk\r_efx.hpp" />
+    <ClInclude Include="architecture\sdk\triangleapi.hpp" />
+    <ClInclude Include="architecture\sdk\usercmd.hpp" />
+    <ClInclude Include="architecture\sdk\weaponinfo.hpp" />
+    <ClInclude Include="architecture\tools\Instruments.hpp" />
+    <ClInclude Include="architecture\sdk\color.hpp" />
+    <ClInclude Include="architecture\tools\Command.hpp" />
+    <ClInclude Include="architecture\cvars.hpp" />
+    <ClInclude Include="architecture\sdk\entity.hpp" />
+    <ClInclude Include="architecture\sdk\movevars.hpp" />
+    <ClInclude Include="architecture\features\NoFlash.hpp" />
+    <ClInclude Include="architecture\tools\offsets.hpp" />
+    <ClInclude Include="architecture\hooks\client.hpp" />
+    <ClInclude Include="architecture\tools\drawing.hpp" />
+    <ClInclude Include="architecture\main.hpp" />
+    <ClInclude Include="architecture\tools\hiding.hpp" />
+    <ClInclude Include="architecture\hooks\hook.hpp" />
+    <ClInclude Include="architecture\features\scrollstructs.hpp" />
+    <ClInclude Include="architecture\sdk\con_nprint.hpp" />
+    <ClInclude Include="architecture\sdk\demo_api.hpp" />
+    <ClInclude Include="architecture\sdk\director_cmds.hpp" />
+    <ClInclude Include="architecture\sdk\dll_state.hpp" />
+    <ClInclude Include="architecture\sdk\engine_launcher_api.hpp" />
+    <ClInclude Include="architecture\sdk\event_api.hpp" />
+    <ClInclude Include="architecture\sdk\exefuncs.hpp" />
+    <ClInclude Include="architecture\sdk\hltv.hpp" />
+    <ClInclude Include="architecture\sdk\interface.hpp" />
+    <ClInclude Include="architecture\sdk\itrackeruser.hpp" />
+    <ClInclude Include="architecture\sdk\ivoicetweak.hpp" />
+    <ClInclude Include="architecture\sdk\netadr.hpp" />
+    <ClInclude Include="architecture\sdk\net_api.hpp" />
+    <ClInclude Include="architecture\sdk\ref_params.hpp" />
+    <ClInclude Include="architecture\sdk\screenfade.hpp" />
+    <ClInclude Include="architecture\sdk\cdll_dll.hpp" />
+    <ClInclude Include="architecture\sdk\Cdll_int.hpp" />
+    <ClInclude Include="architecture\sdk\cl_dll.hpp" />
+    <ClInclude Include="architecture\sdk\custom.hpp" />
+    <ClInclude Include="architecture\sdk\customentity.hpp" />
+    <ClInclude Include="architecture\sdk\edict.hpp" />
+    <ClInclude Include="architecture\sdk\eiface.hpp" />
+    <ClInclude Include="architecture\sdk\keydefs.hpp" />
+    <ClInclude Include="architecture\sdk\pm_defs.hpp" />
+    <ClInclude Include="architecture\sdk\progdefs.hpp" />
+    <ClInclude Include="architecture\sdk\r_studioint.hpp" />
+    <ClInclude Include="architecture\sdk\shake.hpp" />
+    <ClInclude Include="architecture\sdk\studio.hpp" />
+    <ClInclude Include="architecture\sdk\util_vector.hpp" />
+    <ClInclude Include="architecture\sdk\rect.hpp" />
+    <ClInclude Include="architecture\sdk\parsemsg.hpp" />
+    <ClInclude Include="architecture\tools\xstring.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cBuddy.cpp" />
-    <ClCompile Include="esp.cpp" />
-    <ClCompile Include="Instruments.cpp" />
-    <ClCompile Include="Command.cpp" />
-    <ClCompile Include="jumpstats.cpp" />
-    <ClCompile Include="NoFlash.cpp" />
-    <ClCompile Include="offsets.cpp" />
-    <ClCompile Include="client.cpp" />
-    <ClCompile Include="drawing.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="hiding.cpp" />
-    <ClCompile Include="hook.cpp" />
-    <ClCompile Include="cvars.cpp" />
-    <ClCompile Include="usermsg.cpp" />
-    <ClCompile Include="ValveSDK\common\interface.cpp" />
-    <ClCompile Include="ValveSDK\misc\parsemsg.cpp" />
-    <ClCompile Include="xstring.cpp" />
+    <ClCompile Include="architecture\features\cBuddy.cpp" />
+    <ClCompile Include="architecture\features\esp.cpp" />
+    <ClCompile Include="architecture\tools\Instruments.cpp" />
+    <ClCompile Include="architecture\tools\Command.cpp" />
+    <ClCompile Include="architecture\features\NoFlash.cpp" />
+    <ClCompile Include="architecture\tools\offsets.cpp" />
+    <ClCompile Include="architecture\hooks\client.cpp" />
+    <ClCompile Include="architecture\tools\drawing.cpp" />
+    <ClCompile Include="architecture\main.cpp" />
+    <ClCompile Include="architecture\tools\hiding.cpp" />
+    <ClCompile Include="architecture\hooks\hook.cpp" />
+    <ClCompile Include="architecture\cvars.cpp" />
+    <ClCompile Include="architecture\hooks\usermsg.cpp" />
+    <ClCompile Include="architecture\sdk\interface.cpp" />
+    <ClCompile Include="architecture\sdk\parsemsg.cpp" />
+    <ClCompile Include="architecture\tools\xstring.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
