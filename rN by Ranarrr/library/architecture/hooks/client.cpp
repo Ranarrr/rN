@@ -366,7 +366,7 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	//-------------------------
 
 	//Auto-Duck----------
-	if( CCVars::Get()->auto_duck->value )
+	if( CCVars::Get()->auto_duck->value && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY )
 		if( CCVars::Get()->auto_duck_dist->value > Instruments::Get()->flGroundHeight() && !CCVars::Get()->auto_duck_onlyblocks->value ) {
 			if( ~g_pLocalPlayer()->m_iFlags & FL_ONGROUND )
 				pCmd->buttons |= IN_DUCK;

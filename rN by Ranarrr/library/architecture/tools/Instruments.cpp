@@ -8,7 +8,7 @@ Instruments* Instruments::Get() {
 	static Instruments sInstruments;
 	return &sInstruments;
 }
-
+																			
 float Instruments::flGroundDistMeasuredInFrames() {
 	pmtrace_s *tr = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.0f ), 1, PM_NORMAL, -1 );
 	return ( g_pLocalPlayer()->m_vecOrigin[ 2 ] - tr->endpos[ 2 ] ) / ( ( g_pLocalPlayer()->m_flFallSpeed > 0 ? g_pLocalPlayer()->m_flFallSpeed : 1.f ) * g_pLocalPlayer()->m_flFrametime );
@@ -31,11 +31,14 @@ bool Instruments::bSurfStrafeHelper() {
 }
 
 pmtrace_s *get_facing_wall() { // it's not 100% a wall per se (doesn't check the plane or if it's world.), it's just the function name, but should be safe
-	Vector maxforward = ( g_pLocalPlayer()->m_vecForward * ( Vector( 8192.f ) / g_pLocalPlayer()->m_vecForward ) ); // consider using velocity angle instead, but is it safe?
+	Vector maxforward = ( g_pLocalPlayer()->m_vecForward * Vector( 8192.f ) ), rightoversurface; // consider using velocity angle instead, but is it safe?
 	//Vector maxforward = VectorAngles
 	pmtrace_s *t = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.f ), 1, PM_NORMAL, -1 );
 
-	return g_Engine.PM_TraceLine( t->endpos, t->endpos + maxforward, 1, PM_STUDIO_IGNORE, -1 );
+	rightoversurface = t->endpos;
+	rightoversurface += Vector( 0.f, 0.f, 1.f ); // locate the start for next trace right above ground so you don't get the edge if there is a cliff in front of you.
+
+	return g_Engine.PM_TraceLine( rightoversurface, rightoversurface + maxforward, 1, PM_STUDIO_IGNORE, -1 );
 }
 
 float Instruments::get_edge_inair() {

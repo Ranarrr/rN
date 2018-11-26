@@ -67,8 +67,8 @@ public:
 	inline Vector	operator-( const Vector v )	const	{ return Vector( x - v.x, y - v.y, z - v.z ); }
 	inline Vector	operator*( const Vector v )	const	{ return Vector( x * v.x, y * v.y, z * v.z ); }
 	inline Vector	operator*( const float fl )	const	{ return Vector( x * fl, y * fl, z * fl ); }
-	inline Vector	operator/( const Vector v )	const	{ return Vector( x / v.x, y / v.y, z / v.z ); }
-	inline Vector	operator/( const float fl )	const	{ return Vector( x / fl, y / fl, z / fl ); }
+	inline Vector	operator/( const Vector v )	const	{ return Vector( x / v.x == 0.f ? 1.f : v.x, y / v.y == 0.f ? 1.f : v.y, z / v.z == 0.f ? 1.f : v.z ); }
+	inline Vector	operator/( const float fl )	const	{ return Vector( x / fl == 0.f ? 1.f : fl, y / fl == 0.f ? 1.f : fl, z / fl == 0.f ? 1.f : fl ); }
 
 	// Methods
 	inline void				CopyToArray( float *rgfl ) const	{ rgfl[ 0 ] = x, rgfl[ 1 ] = y, rgfl[ 2 ] = z; }

@@ -36,6 +36,7 @@ public:
 	char			*PrefHack( char *IfCmd, char *Name );
 	std::string		szDirFile( char* pszName );
 	std::string		Prefix_ini();
+	int				autodirwithvelocity();
 
 	float	flGroundDistMeasuredInFrames();
 };
