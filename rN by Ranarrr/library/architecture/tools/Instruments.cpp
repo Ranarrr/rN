@@ -8,37 +8,81 @@ Instruments* Instruments::Get() {
 	static Instruments sInstruments;
 	return &sInstruments;
 }
-																			
+
 float Instruments::flGroundDistMeasuredInFrames() {
-	pmtrace_s *tr = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.0f ), 1, PM_NORMAL, -1 );
+	pmtrace_s *tr = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.0f ), PM_STUDIO_IGNORE, g_pLocalPlayer()->m_iUseHull, -1 );
 	return ( g_pLocalPlayer()->m_vecOrigin[ 2 ] - tr->endpos[ 2 ] ) / ( ( g_pLocalPlayer()->m_flFallSpeed > 0 ? g_pLocalPlayer()->m_flFallSpeed : 1.f ) * g_pLocalPlayer()->m_flFrametime );
 }
 
 float Instruments::flGroundHeight() {
-	 return ( g_pLocalPlayer()->m_vecOrigin[ 2 ] - g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.0f ), 1, PM_NORMAL, -1 )->endpos[ 2 ] );
+	 return ( g_pLocalPlayer()->m_vecOrigin[ 2 ] - g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.0f ), PM_STUDIO_IGNORE, g_pLocalPlayer()->m_iUseHull, -1 )->endpos[ 2 ] );
 }
 
 float Instruments::flAngleAtGround() {
-	return acos( g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.0f, 0.0f, 8192.0f ), 1, PM_NORMAL, -1 )->plane.normal[ 2 ] ) / M_PI * 180;
+	return acos( g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.0f, 0.0f, 8192.0f ), PM_STUDIO_IGNORE, g_pLocalPlayer()->m_iUseHull, -1 )->plane.normal[ 2 ] ) / M_PI * 180;
 }
 
 bool Instruments::bSurf() { // if on surf or not
-	return ( flAngleAtGround() >= 45.000001 && Instruments::Get()->flGroundHeight() < 30.0f );
+	return ( flAngleAtGround() > 45.000001 && Instruments::Get()->flGroundHeight() < 30.0f );
 }
 
 bool Instruments::bSurfStrafeHelper() {
-	return ( flAngleAtGround() >= 45.000001 && CCVars::Get()->strafe_control_helper_surffix->value && Instruments::Get()->flGroundHeight() < CCVars::Get()->strafe_control_helper_surffix_height->value );
+	return ( flAngleAtGround() > 45.000001 && CCVars::Get()->strafe_control_helper_surffix->value && Instruments::Get()->flGroundHeight() < CCVars::Get()->strafe_control_helper_surffix_height->value );
+}
+
+float getdir( Vector fwd ) {
+	if( fwd[ 1 ] == 0.f && fwd[ 0 ] == 0.f )
+		return 0.f;
+	else {
+		float yaw = RAD2DEG( atan2( fwd[ 1 ], fwd[ 0 ] ) );
+
+		if( yaw < 0.f )
+			yaw += 360;
+
+		return yaw;
+	}
+}
+
+int Instruments::autodirwithvelocity() {
+	// assume if the direction doesn't get set, just keep it straight
+	int dir = 1;
+
+	float velocityangle = getdir( g_pLocalPlayer()->m_vecVelocity ), yaw = g_pLocalPlayer()->m_vecViewAngles[ 1 ];
+	float threshold = 45.f;
+
+	// threshold will always be 45, since there are 90 degrees between dir 1 and dir 3 ( forward and sideways to the right )
+	// in the game, our viewangles consists of 4 quadrants, each of these quadrants are 90 degrees, and the threshold is where one of the quadrants meets in the middle ;)
+
+	float delta = yaw - velocityangle;
+
+	if( delta < 0.f )
+		delta += 360.f;
+
+	if( delta ) { // delta is more than 0 if going sideways to the right or backwards
+		if( delta < ( 180.f + threshold ) && delta > ( 180.f - threshold ) )
+			dir = 2;
+		else if( delta < ( 90.f + threshold ) && delta > ( 90.f - threshold ) )
+			dir = 3;
+		else if( delta < ( 270.f + threshold ) && delta > ( 270.f - threshold ) )
+			dir = 4;
+	} else // guaranteed to be forward because yaw is the same as the velocity angle.
+		dir = 1;
+
+	if( velocityangle == 0.f )
+		dir = 1;
+
+	return dir;
 }
 
 pmtrace_s *get_facing_wall() { // it's not 100% a wall per se (doesn't check the plane or if it's world.), it's just the function name, but should be safe
-	Vector maxforward = ( g_pLocalPlayer()->m_vecForward * Vector( 8192.f ) ), rightoversurface; // consider using velocity angle instead, but is it safe?
+	Vector maxforward = ( g_pLocalPlayer()->m_vecForward * 8192.f ), rightoversurface; // consider using velocity angle instead, but is it safe?
 	//Vector maxforward = VectorAngles
-	pmtrace_s *t = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.f ), 1, PM_NORMAL, -1 );
+	pmtrace_s *t = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.f ), PM_STUDIO_IGNORE, hull_point, -1 );
 
 	rightoversurface = t->endpos;
 	rightoversurface += Vector( 0.f, 0.f, 1.f ); // locate the start for next trace right above ground so you don't get the edge if there is a cliff in front of you.
 
-	return g_Engine.PM_TraceLine( rightoversurface, rightoversurface + maxforward, 1, PM_STUDIO_IGNORE, -1 );
+	return g_Engine.PM_TraceLine( rightoversurface, rightoversurface + maxforward, PM_STUDIO_IGNORE, hull_human, -1 );
 }
 
 float Instruments::get_edge_inair() {
@@ -46,7 +90,7 @@ float Instruments::get_edge_inair() {
 		return 0.f;
 
 	Vector2D start;
-	pmtrace_s *t = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.f ), 1, PM_STUDIO_IGNORE , -1 );
+	pmtrace_s *t = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.f ), PM_STUDIO_IGNORE, hull_human, -1 );
 
 	start = t->endpos.Make2D();
 
@@ -58,13 +102,13 @@ float Instruments::get_edge_inair() {
 bool Instruments::is_above_facing_wall() {
 	pmtrace_s *t = get_facing_wall();
 
-	t = g_Engine.PM_TraceLine( t->endpos, t->endpos - Vector( 0.f, 0.f, 8192.f ), 1, PM_STUDIO_IGNORE, -1 );
+	t = g_Engine.PM_TraceLine( t->endpos, t->endpos - Vector( 0.f, 0.f, 8192.f ), PM_STUDIO_IGNORE, hull_human, -1 );
 
 	return t->endpos[ 2 ] > g_pLocalPlayer()->m_vecOrigin[ 2 ] ? false : true; // should i use - 14.f or not? There were no noticeable differences.
 }
 
 // N == vector axis of end-position of trace, 0 == x, 1 == y, 2 == z | Credits to RIscRIpt
-float Instruments::GetTraceEndPosN( Vector start, Vector end, int N ) {
+float GetTraceEndPosN( Vector start, Vector end, int N ) {
 	pmtrace_s t;
 	g_pLocalPlayer()->m_iUseHull == 1 ? g_Engine.pEventAPI->EV_SetTraceHull( 1 ) : g_Engine.pEventAPI->EV_SetTraceHull( 0 );
 	g_Engine.pEventAPI->EV_PlayerTrace( start, end, PM_STUDIO_BOX, -1, &t );
@@ -75,7 +119,7 @@ float Instruments::flEdgeDist() {
 	float result = FLT_MAX;
 	Vector vBase;
 
-	vBase = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.0f, 0.0f, 8192.0f ), 1, 0, -1 )->endpos - Vector( 0.0f, 0.0f, 1.0f );
+	vBase = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, g_pLocalPlayer()->m_vecOrigin - Vector( 0.0f, 0.0f, 8192.0f ), 1, hull_point, -1 )->endpos - Vector( 0.0f, 0.0f, 1.0f );
 
 	result = min( result, GetTraceEndPosN( vBase + Vector( 36.0f, 0.0f, 0.0f ), vBase, 0 ) - vBase[ 0 ] );
 	result = min( result, vBase[ 0 ] - GetTraceEndPosN( vBase - Vector( 36.0f, 0.0f, 0.0f ), vBase, 0 ) );
@@ -322,10 +366,9 @@ bool Instruments::WorldToScreen( float *pflOrigin, float *pflVecScreen ) {
 }
 
 float Instruments::PlayerHeight( int usehull ) { // credits to terazoid i think
-	Vector vTemp( 0.f, 0.f, -8192.f );
-	pmtrace_s pTrace;
+	Vector vTemp = g_pLocalPlayer()->m_vecOrigin - Vector( 0.f, 0.f, 8192.f );
+	pmtrace_s pTrace, *trace = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, vTemp, PM_STUDIO_IGNORE, usehull, -1 );
 	float ret;
-	pmtrace_s *trace = g_Engine.PM_TraceLine( g_pLocalPlayer()->m_vecOrigin, vTemp, 1, usehull, -1 );
 
 	ret	= g_pLocalPlayer()->m_vecOrigin.DistTo( trace->endpos );
 	vTemp = trace->endpos;
@@ -335,12 +378,12 @@ float Instruments::PlayerHeight( int usehull ) { // credits to terazoid i think
 
 	if( pTrace.fraction < 1.0f ) {
 		int index = g_Engine.pEventAPI->EV_IndexFromTrace( &pTrace );
-		SOtherPlayers& COP = g_OtherPlayers[ index ];
-
 		ret	= g_pLocalPlayer()->m_vecOrigin.DistTo( pTrace.endpos );
 
 		if( index >= 1 && index <= 32 ) {
-			float dst = g_pLocalPlayer()->m_vecOrigin.z - ( g_pLocalPlayer()->m_iUseHull == 1 ? 32 : 18 ) - COP.m_vecOrigin.z - ret;
+			SOtherPlayers& COP = g_OtherPlayers[ index ];
+
+			float dst = g_pLocalPlayer()->m_vecOrigin.z - ( g_pLocalPlayer()->m_iUseHull == 0 ? 32 : 18 ) - COP.m_vecOrigin.z - ret;
 
 			if( dst < 30 )
 				ret -= 14.0f;
@@ -356,36 +399,6 @@ inline char *Instruments::PrefHack( char *IfCmd, char *Name ) {
 	strcat( o, Prefix_ini().c_str() );
 	strcat( o, Name );
 	return o;
-}
-
-// angles is output, forward is input
-inline void Instruments::VectorAngles( const float *forward, float *angles ) {
-	float tmp, yaw, pitch;
-
-	if( forward[ 1 ] == 0 && forward[ 0 ] == 0 ) {
-		yaw = 0;
-		if( forward[ 2 ] > 0 )
-			pitch = 270;
-		else
-			pitch = 90;
-	} else {
-		yaw = ( atan2( forward[ 1 ], forward[ 0 ] ) * 180 / M_PI );
-		if( yaw < 0 )
-			yaw += 360;
-		tmp = sqrt( forward[ 0 ] * forward[ 0 ] + forward[ 1 ] * forward[ 1 ] );
-		pitch = ( atan2( -forward[ 2 ], tmp ) * 180 / M_PI );
-		if( pitch < 0 )
-			pitch += 360;
-	}
-
-	angles[ 0 ] = pitch;
-	angles[ 1 ] = yaw;
-	angles[ 2 ] = 0;
-
-	while( angles[ 0 ] < -89 ) { angles[ 0 ] += 180; angles[ 1 ] += 180; }
-	while( angles[ 0 ] > 89 ) { angles[ 0 ] -= 180; angles[ 1 ] += 180; }
-	while( angles[ 1 ] < -180 ) { angles[ 1 ] += 360; }
-	while( angles[ 1 ] > 180 ) { angles[ 1 ] -= 360; }
 }
 
 std::string Instruments::szDirFile( char *pszName ) {
@@ -408,55 +421,4 @@ std::string Instruments::Prefix_ini() {
 	myfile.close();
 
 	return prefix_ini;
-}
-
-int Instruments::autodir() {		// if (mx > 0) mouse moves to the right, if (mx < 0) mouse moves to the left
-	int dir1 = 0;
-
-	if( g_pLocalPlayer()->m_iFlags&FL_ONGROUND ) {
-		if( g_pLocalPlayer()->m_iMX > 0 && g_pLocalPlayer()->m_bIF && g_pLocalPlayer()->m_bIMR ) { dir1 = 1; }
-		if( g_pLocalPlayer()->m_iMX > 0 && g_pLocalPlayer()->m_bIB && g_pLocalPlayer()->m_bIML ) { dir1 = 2; }
-		if( g_pLocalPlayer()->m_iMX > 0 && g_pLocalPlayer()->m_bIB && g_pLocalPlayer()->m_bIMR ) { dir1 = 3; }
-		if( g_pLocalPlayer()->m_iMX > 0 && g_pLocalPlayer()->m_bIF && g_pLocalPlayer()->m_bIML ) { dir1 = 4; }
-		if( g_pLocalPlayer()->m_iMX < 0 && g_pLocalPlayer()->m_bIF && g_pLocalPlayer()->m_bIML ) { dir1 = 1; }
-		if( g_pLocalPlayer()->m_iMX < 0 && g_pLocalPlayer()->m_bIB && g_pLocalPlayer()->m_bIMR ) { dir1 = 2; }
-		if( g_pLocalPlayer()->m_iMX < 0 && g_pLocalPlayer()->m_bIF && g_pLocalPlayer()->m_bIMR ) { dir1 = 3; }
-		if( g_pLocalPlayer()->m_iMX < 0 && g_pLocalPlayer()->m_bIB && g_pLocalPlayer()->m_bIML ) { dir1 = 4; }
-	}
-
-	if( g_pLocalPlayer()->m_iMX < 0 && g_pLocalPlayer()->m_bIML && !( g_pLocalPlayer()->m_iFlags&FL_ONGROUND ) ) // mouse moves left
-		dir1 = 1;
-
-	if( g_pLocalPlayer()->m_iMX > 0 && g_pLocalPlayer()->m_bIMR && !( g_pLocalPlayer()->m_iFlags&FL_ONGROUND ) ) // mouse moves right
-		dir1 = 1;
-
-	if( g_pLocalPlayer()->m_iMX < 0 && g_pLocalPlayer()->m_bIMR && !( g_pLocalPlayer()->m_iFlags&FL_ONGROUND ) ) // mouse moves left
-		dir1 = 2;
-
-	if( g_pLocalPlayer()->m_iMX > 0 && g_pLocalPlayer()->m_bIML && !( g_pLocalPlayer()->m_iFlags&FL_ONGROUND ) ) // mouse moves right
-		dir1 = 2;
-
-	if( g_pLocalPlayer()->m_iMX < 0 && g_pLocalPlayer()->m_bIF && !( g_pLocalPlayer()->m_iFlags&FL_ONGROUND ) ) // mouse moves left
-		dir1 = 3;
-	
-	if( g_pLocalPlayer()->m_iMX > 0 && g_pLocalPlayer()->m_bIB && !( g_pLocalPlayer()->m_iFlags&FL_ONGROUND ) ) // mouse moves right
-		dir1 = 3;
-
-	if( g_pLocalPlayer()->m_iMX < 0 && g_pLocalPlayer()->m_bIB && !( g_pLocalPlayer()->m_iFlags&FL_ONGROUND ) ) // mouse moves left
-		dir1 = 4;
-
-	if( g_pLocalPlayer()->m_iMX > 0 && g_pLocalPlayer()->m_bIF && !( g_pLocalPlayer()->m_iFlags&FL_ONGROUND ) ) // mouse moves right
-		dir1 = 4; 
-
-	if( g_pLocalPlayer()->m_iMoveType == MOVETYPE_FLY ) {
-		dir1 = 1;
-		g_pLocalPlayer()->m_iOldDir = dir1;
-	}
-
-	if( g_pLocalPlayer()->m_iFlags&FL_ONGROUND )
-		g_pLocalPlayer()->m_iOldDir = dir1;
-	else
-		dir1 = g_pLocalPlayer()->m_iOldDir;
-
-	return dir1;
 }

@@ -1,6 +1,6 @@
 ﻿#include "client.hpp"
 
-// rN v0.2 by Ranarrr source release.
+// rN v0.202 by Ranarrr source release.
 // Credits:
 //
 // - RIscRIpt
@@ -54,7 +54,7 @@ CClient::CClient() {}
 
 CClient::~CClient() {}
 
-CClient* CClient::Get() {
+CClient *CClient::Get() {
 	static CClient sClient;
 	return &sClient;
 }
@@ -319,9 +319,9 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	if( g_pLocalPlayer()->m_bIsSteam ) {
 		if( g_Engine.pfnGetCvarPointer( "m_rawinput" )->value ) {
 			if( current_m_pos.x >= ( g_Engine.GetWindowCenterX() * 2 ) - 1 )
-				g_pLocalPlayer()->m_iMX = 100;
+				g_pLocalPlayer()->m_iMX = 1;
 			else if( current_m_pos.x <= 0 )
-				g_pLocalPlayer()->m_iMX = -100;
+				g_pLocalPlayer()->m_iMX = -1;
 			else
 				g_pLocalPlayer()->m_iMX = ( current_m_pos.x - last_m_pos.x );
 
@@ -377,8 +377,10 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 			
 	//-------------------
 
+	// auto direction for the strafe helper ( calculated by angle of velocity )
 	if( CCVars::Get()->strafe_control_helper_dir_auto->value )
-		CCVars::Get()->strafe_control_helper_dir->value = Instruments::Get()->autodir() > 0 ? Instruments::Get()->autodir() : 1;
+		CCVars::Get()->strafe_control_helper_dir->value = Instruments::Get()->autodirwithvelocity();
+	//--------------------
 
 	//fps helper
 	if( CCVars::Get()->fps_helper->value ) {
@@ -584,116 +586,147 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	// -----------------------------------------
 
 	// xHancer style strafe helper with control feature
-	if( CCVars::Get()->strafe_control_helper->value == 2 && !( g_pLocalPlayer()->m_iFlags & FL_ONGROUND ) && ( g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY ) && !( Instruments::Get()->bSurf() ) ) {
-		Vector tmpva;
-		g_Engine.GetViewAngles( tmpva );
-		
-		switch( ( int ) CCVars::Get()->strafe_control_helper_dir->value ) {
-			case 1:
-				if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
-					pCmd->forwardmove = ( g_pEngine->pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value ) / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
-				else {
-					if( CCVars::Get()->strafe_control_helper_forwardmove->value )
-						pCmd->forwardmove = ( CCVars::Get()->strafe_control_helper_forwardmove->value / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
-					else
-						pCmd->forwardmove = 0.f;
-				}
+	if( CCVars::Get()->strafe_control_helper->value == 2 && ~g_pLocalPlayer()->m_iFlags & FL_ONGROUND && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && !Instruments::Get()->bSurfStrafeHelper()
+		&& g_pLocalPlayer()->m_iWaterLevel <= 2 ) {
+		Vector tmp_va;
+		g_Engine.GetViewAngles( tmp_va );
 
-				if( g_pLocalPlayer()->m_iMX > 0 ) {
-					pCmd->sidemove += CCVars::Get()->strafe_control_helper_sidemove->value;
-					tmpva[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
-				} else if( g_pLocalPlayer()->m_iMX < 0 ) {
-					pCmd->sidemove -= CCVars::Get()->strafe_control_helper_sidemove->value;
-					tmpva[ 1 ] += CCVars::Get()->strafe_control_speed->value;
-				}
+		if( ( g_pLocalPlayer()->m_iMX >= CCVars::Get()->strafe_control_helper_arthreshold->value && mxr >= CCVars::Get()->strafe_control_helper_adelay->value )
+			|| ( g_pLocalPlayer()->m_iMX <= -CCVars::Get()->strafe_control_helper_althreshold->value && mxl >= CCVars::Get()->strafe_control_helper_adelay->value ) ) {
+			switch( ( int ) CCVars::Get()->strafe_control_helper_dir->value ) {
+				case 1:
+					if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
+						pCmd->forwardmove = ( g_pEngine->pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value ) / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
+					else {
+						if( CCVars::Get()->strafe_control_helper_forwardmove->value )
+							pCmd->forwardmove = ( CCVars::Get()->strafe_control_helper_forwardmove->value / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
+						else
+							pCmd->forwardmove = 0.f;
+					}
 
-				break;
+					if( g_pLocalPlayer()->m_iMX > 0.f ) {
+						pCmd->sidemove += CCVars::Get()->strafe_control_helper_sidemove->value;
+						mxr = 0;
 
-			case 2:
-				if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
-					pCmd->forwardmove = -( g_pEngine->pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value ) / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
-				else {
-					if( CCVars::Get()->strafe_control_helper_forwardmove->value )
-						pCmd->forwardmove = -( CCVars::Get()->strafe_control_helper_forwardmove->value / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
-					else
-						pCmd->forwardmove = 0.f;
-				}
-					
-				if( g_pLocalPlayer()->m_iMX > 0 ) {
-					pCmd->sidemove -= CCVars::Get()->strafe_control_helper_sidemove->value;
-					tmpva[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
-				} else if( g_pLocalPlayer()->m_iMX < 0 ) {
-					pCmd->sidemove += CCVars::Get()->strafe_control_helper_sidemove->value;
-					tmpva[ 1 ] += CCVars::Get()->strafe_control_speed->value;
-				}
+						if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+							tmp_va[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
 
-				break;
+					} else if( g_pLocalPlayer()->m_iMX < 0.f ) {
+						pCmd->sidemove -= CCVars::Get()->strafe_control_helper_sidemove->value;
+						mxl = 0;
 
-			case 3:
-				if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
-					pCmd->sidemove = ( g_pEngine->pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value ) / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
-				else {
-					if( CCVars::Get()->strafe_control_helper_forwardmove->value )
-						pCmd->sidemove = ( CCVars::Get()->strafe_control_helper_forwardmove->value / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
-					else
-						pCmd->sidemove = 0.f;
-				}
-					
-				if( g_pLocalPlayer()->m_iMX > 0 ) {
-					pCmd->forwardmove -= CCVars::Get()->strafe_control_helper_sidemove->value;
-					tmpva[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
-				} else if( g_pLocalPlayer()->m_iMX < 0 ) {
-					pCmd->forwardmove += CCVars::Get()->strafe_control_helper_sidemove->value;
-					tmpva[ 1 ] += CCVars::Get()->strafe_control_speed->value;
-				}
+						if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+							tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
+					}
 
-				break;
+					break;
 
-			case 4:
-				if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
-					pCmd->sidemove = -( g_pEngine->pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value ) / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
-				else {
-					if( CCVars::Get()->strafe_control_helper_forwardmove->value )
-						pCmd->sidemove = ( CCVars::Get()->strafe_control_helper_forwardmove->value / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
-					else
-						pCmd->sidemove = 0.f;
-				}
+				case 2:
+					if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
+						pCmd->forwardmove = -( g_pEngine->pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value ) / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
+					else {
+						if( CCVars::Get()->strafe_control_helper_forwardmove->value )
+							pCmd->forwardmove = -( CCVars::Get()->strafe_control_helper_forwardmove->value / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
+						else
+							pCmd->forwardmove = 0.f;
+					}
+						
+					if( g_pLocalPlayer()->m_iMX > 0.f ) {
+						pCmd->sidemove -= CCVars::Get()->strafe_control_helper_sidemove->value;
+						mxr = 0;
 
-				if( g_pLocalPlayer()->m_iMX > 0 ) {
-					pCmd->forwardmove += CCVars::Get()->strafe_control_helper_sidemove->value;
-					tmpva[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
-				} else if( g_pLocalPlayer()->m_iMX < 0 ) {
-					pCmd->forwardmove -= CCVars::Get()->strafe_control_helper_sidemove->value;
-					tmpva[ 1 ] += CCVars::Get()->strafe_control_speed->value;
-				}
+						if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+							tmp_va[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
 
-				break;
+					} else if( g_pLocalPlayer()->m_iMX < 0.f ) {
+						pCmd->sidemove += CCVars::Get()->strafe_control_helper_sidemove->value;
+						mxl = 0;
+
+						if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+							tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
+					}
+
+					break;
+
+				case 3:
+					if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
+						pCmd->sidemove = ( g_pEngine->pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value ) / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
+					else {
+						if( CCVars::Get()->strafe_control_helper_forwardmove->value )
+							pCmd->sidemove = ( CCVars::Get()->strafe_control_helper_forwardmove->value / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
+						else
+							pCmd->sidemove = 0.f;
+					}
+						
+					if( g_pLocalPlayer()->m_iMX > 0.f ) {
+						pCmd->forwardmove -= CCVars::Get()->strafe_control_helper_sidemove->value;
+						mxr = 0;
+
+						if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+							tmp_va[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
+
+					} else if( g_pLocalPlayer()->m_iMX < 0.f ) {
+						pCmd->forwardmove += CCVars::Get()->strafe_control_helper_sidemove->value;
+						mxl = 0;
+
+						if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+							tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
+					}
+
+					break;
+
+				case 4:
+					if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
+						pCmd->sidemove = -( g_pEngine->pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value ) / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
+					else {
+						if( CCVars::Get()->strafe_control_helper_forwardmove->value )
+							pCmd->sidemove = ( CCVars::Get()->strafe_control_helper_forwardmove->value / ( g_pLocalPlayer()->m_flMaxSpeed / ( g_pLocalPlayer()->m_flVelocity ? g_pLocalPlayer()->m_flVelocity : 1.f ) ) );
+						else
+							pCmd->sidemove = 0.f;
+					}
+
+					if( g_pLocalPlayer()->m_iMX > 0.f ) {
+						pCmd->forwardmove += CCVars::Get()->strafe_control_helper_sidemove->value;
+						mxr = 0;
+
+						if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+							tmp_va[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
+
+					} else if( g_pLocalPlayer()->m_iMX < 0.f ) {
+						pCmd->forwardmove -= CCVars::Get()->strafe_control_helper_sidemove->value;
+						mxl = 0;
+
+						if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
+							tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
+					}
+
+					break;
+			}
 		}
 
-		g_pEngine->SetViewAngles( tmpva );
+		g_pEngine->SetViewAngles( tmp_va );
 	}
 	// -----------------------------------------
 
 	//Strafe control-------------------------------
-	if( CCVars::Get()->strafe_control_helper->value == 1 && !( g_pLocalPlayer()->m_iFlags & FL_ONGROUND ) && ( g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY ) && !( Instruments::Get()->bSurf() ) ) {
+	if( CCVars::Get()->strafe_control_helper->value == 1 && ~g_pLocalPlayer()->m_iFlags & FL_ONGROUND && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && !Instruments::Get()->bSurfStrafeHelper()
+		&& g_pLocalPlayer()->m_iWaterLevel <= 2 ) {
 		static bool bstrs;
 		Vector tmp_va;
 		g_Engine.GetViewAngles( tmp_va );
 
 		switch( ( int ) CCVars::Get()->strafe_control_helper_dir->value ) {
 		case 1:		// -------------------------------------------------------------------------------------FW
-		{
-			if( g_pLocalPlayer()->m_iMX < CCVars::Get()->strafe_control_helper_althreshold->value && mxl > CCVars::Get()->strafe_control_helper_adelay->value ) // MOUSE MOVES LEFT <------------------------- mx = -mx
-			{
+			if( g_pLocalPlayer()->m_iMX <= -CCVars::Get()->strafe_control_helper_althreshold->value && mxl >= CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES LEFT <------------------------- mx = -mx
 				mxr = 0;
 				if( CCVars::Get()->strafe_control_helper_sidemove_random->value )
 					pCmd->sidemove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
-				else if( CCVars::Get()->strafe_control_helper_sidemove_random->value == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
+				else if( CCVars::Get()->strafe_control_helper_sidemove_random->value == 0 )
 					pCmd->sidemove = -CCVars::Get()->strafe_control_helper_sidemove->value;
 
 				if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
 					pCmd->forwardmove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
-				else if( CCVars::Get()->strafe_control_helper_forwardmove_random->value == 0 /*&& CCVars::Get()->strafe_control_helper_forwardmove->value*/ )
+				else if( CCVars::Get()->strafe_control_helper_forwardmove_random->value == 0 )
 					pCmd->forwardmove = +CCVars::Get()->strafe_control_helper_forwardmove->value;
 
 				if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
@@ -710,16 +743,16 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 				if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
 					tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
 
-			} else if( g_pLocalPlayer()->m_iMX > CCVars::Get()->strafe_control_helper_arthreshold->value && mxr > CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES RIGHT <------------------------ mx = +mx
+			} else if( g_pLocalPlayer()->m_iMX >= CCVars::Get()->strafe_control_helper_arthreshold->value && mxr >= CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES RIGHT <------------------------ mx = +mx
 				mxl = 0;
 				if( CCVars::Get()->strafe_control_helper_sidemove_random->value ) // Random == 1
 					pCmd->sidemove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
-				else if( CCVars::Get()->strafe_control_helper_sidemove_random->value == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
+				else if( CCVars::Get()->strafe_control_helper_sidemove_random->value == 0 )
 					pCmd->sidemove = +CCVars::Get()->strafe_control_helper_sidemove->value;
 
 				if( CCVars::Get()->strafe_control_helper_forwardmove_random->value ) // Random == 1
 					pCmd->forwardmove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
-				else if( CCVars::Get()->strafe_control_helper_forwardmove_random->value == 0 /*&& CCVars::Get()->strafe_control_helper_forwardmove->value*/ )
+				else if( CCVars::Get()->strafe_control_helper_forwardmove_random->value == 0 )
 					pCmd->forwardmove = +CCVars::Get()->strafe_control_helper_forwardmove->value;
 
 				if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
@@ -736,20 +769,20 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 				if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
 					tmp_va[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
 			}
+
 			break;
-		}
 		case 2:			// -------------------------------------------------------------------------------------BW
-		{
-			if( g_pLocalPlayer()->m_iMX < CCVars::Get()->strafe_control_helper_althreshold->value && mxl > CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES LEFT <-------------------------
+			if( g_pLocalPlayer()->m_iMX <= -CCVars::Get()->strafe_control_helper_althreshold->value && mxl >= CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES LEFT <-------------------------
 				mxr = 0;
-				if( CCVars::Get()->strafe_control_helper_sidemove_random->value )//Random == 1
+
+				if( CCVars::Get()->strafe_control_helper_sidemove_random->value ) //Random == 1
 					pCmd->sidemove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
-				else if( CCVars::Get()->strafe_control_helper_sidemove_random->value == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )//Random == 0
+				else if( !CCVars::Get()->strafe_control_helper_sidemove_random->value ) //Random == 0
 					pCmd->sidemove = +CCVars::Get()->strafe_control_helper_sidemove->value;
 
-				if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )//Random == 1
+				if( CCVars::Get()->strafe_control_helper_forwardmove_random->value ) //Random == 1
 					pCmd->forwardmove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
-				else if( CCVars::Get()->strafe_control_helper_forwardmove_random->value == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )//Random == 0
+				else if( !CCVars::Get()->strafe_control_helper_forwardmove_random->value ) //Random == 0
 					pCmd->forwardmove = -CCVars::Get()->strafe_control_helper_forwardmove->value;
 
 				if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
@@ -766,23 +799,24 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 				if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
 					tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
 
-			} else if( g_pLocalPlayer()->m_iMX > CCVars::Get()->strafe_control_helper_arthreshold->value && mxr > CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES RIGHT <------------------------
+			} else if( g_pLocalPlayer()->m_iMX >= CCVars::Get()->strafe_control_helper_arthreshold->value && mxr >= CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES RIGHT <------------------------
 				mxl = 0;
-				if( CCVars::Get()->strafe_control_helper_sidemove_random->value )
-					pCmd->sidemove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
-				else if( CCVars::Get()->strafe_control_helper_sidemove_random->value == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
-					pCmd->sidemove = -CCVars::Get()->strafe_control_helper_sidemove->value;
 
 				if( CCVars::Get()->strafe_control_helper_sidemove_random->value )
+					pCmd->sidemove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
+				else if( !CCVars::Get()->strafe_control_helper_sidemove_random->value )
+					pCmd->sidemove = -CCVars::Get()->strafe_control_helper_sidemove->value;
+
+				if( CCVars::Get()->strafe_control_helper_forwardmove_random->value )
 					pCmd->forwardmove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
-				else if( CCVars::Get()->strafe_control_helper_forwardmove_random->value == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )
+				else if( !CCVars::Get()->strafe_control_helper_forwardmove_random->value )
 					pCmd->forwardmove = -CCVars::Get()->strafe_control_helper_forwardmove->value;
 
 				if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
 					if( istrs < CCVars::Get()->strafe_control_helper_max_strafe->value ) {
 						pCmd->buttons &= ~IN_MOVERIGHT;
 						pCmd->buttons |= IN_MOVELEFT;
-						if( pCmd->buttons&IN_MOVELEFT && !bstrs ) {
+						if( pCmd->buttons & IN_MOVELEFT && !bstrs ) {
 							++istrs;
 							bstrs = true;
 						}
@@ -792,20 +826,19 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 				if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
 					tmp_va[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
 			}
+
 			break;
-		}
 		case 3:			// -------------------------------------------------------------------------------------SW RIGHT
-		{
-			if( g_pLocalPlayer()->m_iMX < CCVars::Get()->strafe_control_helper_althreshold->value && mxl > CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES LEFT
+			if( g_pLocalPlayer()->m_iMX <= -CCVars::Get()->strafe_control_helper_althreshold->value && mxl >= CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES LEFT
 				mxr = 0;
 				if( CCVars::Get()->strafe_control_helper_sidemove_random )
 					pCmd->forwardmove = +CCVars::Get()->strafe_control_helper_sidemove->value;
-				else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
+				else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 )
 					pCmd->forwardmove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
 
 				if( CCVars::Get()->strafe_control_helper_forwardmove_random )
 					pCmd->sidemove = +CCVars::Get()->strafe_control_helper_forwardmove->value;
-				else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )
+				else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 )
 					pCmd->sidemove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
 
 				if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
@@ -822,16 +855,16 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 				if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
 					tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
 
-			} else if( g_pLocalPlayer()->m_iMX > CCVars::Get()->strafe_control_helper_arthreshold->value && mxr > CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES RIGHT
+			} else if( g_pLocalPlayer()->m_iMX >= CCVars::Get()->strafe_control_helper_arthreshold->value && mxr >= CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES RIGHT
 				mxl = 0;
 				if( CCVars::Get()->strafe_control_helper_sidemove_random )
 					pCmd->forwardmove = -CCVars::Get()->strafe_control_helper_sidemove->value;
-				else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
+				else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 )
 					pCmd->forwardmove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
 
 				if( CCVars::Get()->strafe_control_helper_forwardmove_random )
 					pCmd->sidemove = +CCVars::Get()->strafe_control_helper_forwardmove->value;
-				else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )
+				else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 )
 					pCmd->sidemove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
 
 				if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
@@ -848,20 +881,19 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 				if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
 					tmp_va[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
 			}
+
 			break;
-		}
 		case 4:
-			{
-				if( g_pLocalPlayer()->m_iMX < CCVars::Get()->strafe_control_helper_althreshold->value && mxl > CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES LEFT
+				if( g_pLocalPlayer()->m_iMX <= -CCVars::Get()->strafe_control_helper_althreshold->value && mxl >= CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES LEFT
 					mxr = 0;
 					if( CCVars::Get()->strafe_control_helper_sidemove_random )
 						pCmd->forwardmove = -CCVars::Get()->strafe_control_helper_sidemove->value;
-					else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
+					else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 )
 						pCmd->forwardmove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
 
 					if( CCVars::Get()->strafe_control_helper_forwardmove_random )
 						pCmd->sidemove = -CCVars::Get()->strafe_control_helper_forwardmove->value;
-					else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )
+					else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 )
 						pCmd->sidemove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
 
 					if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
@@ -874,18 +906,20 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 							}
 						}
 					}
+
 					if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
 						tmp_va[ 1 ] += CCVars::Get()->strafe_control_speed->value;
-				} else if( g_pLocalPlayer()->m_iMX > CCVars::Get()->strafe_control_helper_arthreshold->value && mxr > CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES RIGHT
+
+				} else if( g_pLocalPlayer()->m_iMX >= CCVars::Get()->strafe_control_helper_arthreshold->value && mxr >= CCVars::Get()->strafe_control_helper_adelay->value ) { // MOUSE MOVES RIGHT
 					mxl = 0;
 					if( CCVars::Get()->strafe_control_helper_sidemove_random )
 						pCmd->forwardmove = +CCVars::Get()->strafe_control_helper_sidemove->value;
-					else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 && CCVars::Get()->strafe_control_helper_sidemove->value )
+					else if( CCVars::Get()->strafe_control_helper_sidemove_random == 0 )
 						pCmd->forwardmove = +g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_sidemove_random_min->value, CCVars::Get()->strafe_control_helper_sidemove_random_max->value );
 
 					if( CCVars::Get()->strafe_control_helper_forwardmove_random )
 						pCmd->sidemove = -CCVars::Get()->strafe_control_helper_forwardmove->value;
-					else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 && CCVars::Get()->strafe_control_helper_forwardmove->value )
+					else if( CCVars::Get()->strafe_control_helper_forwardmove_random == 0 )
 						pCmd->sidemove = -g_Engine.pfnRandomFloat( CCVars::Get()->strafe_control_helper_forwardmove_random_min->value, CCVars::Get()->strafe_control_helper_forwardmove_random_max->value );
 
 					if( CCVars::Get()->strafe_control_helper_add_strafe->value ) {
@@ -898,17 +932,19 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 							}
 						}
 					}
+
 					if( !( CCVars::Get()->strafe_control_speed_const->value ) && CCVars::Get()->strafe_control_helper_type->value != 2 )
 						tmp_va[ 1 ] -= CCVars::Get()->strafe_control_speed->value;
 				}
+
 				break;
-			}
 		}
 		g_Engine.SetViewAngles( tmp_va );
 	} else if( g_pLocalPlayer()->m_iFlags & FL_ONGROUND )
 		istrs = 0;
 
-	if( !( g_pLocalPlayer()->m_iFlags & FL_ONGROUND ) && CCVars::Get()->strafe_control_helper->value ) {
+	if( !( g_pLocalPlayer()->m_iFlags & FL_ONGROUND ) && CCVars::Get()->strafe_control_helper->value && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && !Instruments::Get()->bSurfStrafeHelper()
+		&& g_pLocalPlayer()->m_iWaterLevel <= 2 ) {
 		if( CCVars::Get()->strafe_control_speed_const->value && g_pLocalPlayer()->m_iMX > 0 && CCVars::Get()->strafe_control_helper_type->value != 2 ) {
 			Vector tmp_va;
 			g_Engine.GetViewAngles( tmp_va );
@@ -926,9 +962,9 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	//BHOP ---------------------------------------------------
 	// Bhop method 1
 	if( CCVars::Get()->bhop->value == 1.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && g_pLocalPlayer()->flSwimTime == 0.f
-		&& pCmd->buttons & IN_JUMP && GetAsyncKeyState( VK_SPACE ) ) {
+		&& pCmd->buttons & IN_JUMP && GetAsyncKeyState( VK_SPACE ) && !Instruments::Get()->bSurf() && ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity < CCVars::Get()->bhop_wog->value ) ) {
 
-		float playerheight = Instruments::Get()->PlayerHeight( 0 );
+		float playerheight = Instruments::Get()->PlayerHeight( g_pLocalPlayer()->m_iUseHull );
 
 		if( Instruments::Get()->bSurf() || ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity > CCVars::Get()->bhop_wog->value ) )
 			pCmd->buttons &= ~IN_JUMP;
@@ -948,34 +984,32 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 			}
 		}
 
-		// otherwise it won't jump when you stand on ground, because of the on/off switch
-		if( playerheight <= CCVars::Get()->bhop_start->value )
-			pCmd->buttons |= IN_JUMP;
+		if( g_pLocalPlayer()->m_flFallSpeed >= 0.f ) {
+			if( playerheight <= CCVars::Get()->bhop_start->value ) {
+				if( g_pLocalPlayer()->bDBhop )
+					pCmd->buttons |= IN_JUMP;
 
-		if( playerheight <= CCVars::Get()->bhop_start->value ) {
-			g_pLocalPlayer()->bDBhop ? pCmd->buttons |= IN_JUMP : pCmd->buttons &= ~IN_JUMP;
-			// if( g_pEngine->pfnRandomLong( 0, 2 ) ) // to make it really random. not for democheckers, somehow they detect it either way.. something about sending through cmd?
-			g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
-		}
+				g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
+			}
+		} else if( g_pLocalPlayer()->m_flFallSpeed < 0.f ) {
+			if( playerheight <= CCVars::Get()->bhop_end->value ) {
+				if( g_pLocalPlayer()->bDBhop )
+					pCmd->buttons |= IN_JUMP;
 
-		if( g_pLocalPlayer()->m_flFallSpeed > 0 ) {
-			if( playerheight >= CCVars::Get()->bhop_start->value )
-				pCmd->buttons &= ~IN_JUMP;
-		} else if( g_pLocalPlayer()->m_flFallSpeed < 0 ) {
-			if( playerheight >= CCVars::Get()->bhop_end->value )
-				pCmd->buttons &= ~IN_JUMP;
+				g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
+			}
 		}
 	}
 
 	// Bhop method 2
-	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) && CCVars::Get()->patterns.size() != 0 ) {
+	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) && CCVars::Get()->patterns.size() != 0 && g_pLocalPlayer()->flSwimTime == 0.f ) {
 		if( shouldgetPattern ) {
 			pattern = CCVars::Get()->patterns.at( g_pEngine->pfnRandomLong( 0, CCVars::Get()->patterns.size() - 1 ) );
             tick = 0;
 			shouldgetPattern = false;
 		}
 
-		float playerheight = Instruments::Get()->PlayerHeight( 0 );
+		float playerheight = Instruments::Get()->PlayerHeight( g_pLocalPlayer()->m_iUseHull );
 
 		if( Instruments::Get()->bSurf() || ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity > CCVars::Get()->bhop_wog->value ) )
 			pCmd->buttons &= ~IN_JUMP;
@@ -1011,50 +1045,50 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	}
 
 	// Bhop method 3
-	if( CCVars::Get()->bhop->value == 3.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) ) {
-		float playerheight = Instruments::Get()->PlayerHeight( 1 ), groundheightinframes = Instruments::Get()->flGroundDistMeasuredInFrames();
+	if( CCVars::Get()->bhop->value == 3.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) && g_pLocalPlayer()->flSwimTime == 0.f
+		&& !Instruments::Get()->bSurf() && ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity < CCVars::Get()->bhop_wog->value || !CCVars::Get()->bhop_wog->value ) ) {
+		float playerheight = Instruments::Get()->PlayerHeight( g_pLocalPlayer()->m_iUseHull ), groundheightinframes = Instruments::Get()->flGroundDistMeasuredInFrames();
 
-		if( Instruments::Get()->bSurf() || ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity > CCVars::Get()->bhop_wog->value ) )
-			pCmd->buttons &= ~IN_JUMP;
-
-		if( g_pLocalPlayer()->m_flFallSpeed >= 0 ) {
+		if( g_pLocalPlayer()->m_flFallSpeed >= 0.f ) {
 			if( playerheight <= CCVars::Get()->bhop_start->value ) {
 				if( g_pLocalPlayer()->bDBhop ) {
 					g_pEngine->pfnClientCmd( "+jump -1" );
 					g_pEngine->pfnClientCmd( "-jump -1" );
 				}
 
-				if( g_pEngine->pfnRandomLong( 0, 3 ) && groundheightinframes > 1.f )
+				if( g_pEngine->pfnRandomLong( 0, 3 ) && groundheightinframes > 3.f )
 					g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
-				else if( groundheightinframes <= 1.f )
+				else if( groundheightinframes <= 3.f )
 					g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
-			} else
-				pCmd->buttons &= ~IN_JUMP;
-		} else if( g_pLocalPlayer()->m_flFallSpeed <= 0 ) {
+			}
+		} else if( g_pLocalPlayer()->m_flFallSpeed < 0.f ) {
 			if( playerheight <= CCVars::Get()->bhop_end->value ) {
 				if( g_pLocalPlayer()->bDBhop ) {
 					g_pEngine->pfnClientCmd( "+jump -1" );
 					g_pEngine->pfnClientCmd( "-jump -1" );
 				}
 
-				if( g_pEngine->pfnRandomLong( 0, 3 ) && groundheightinframes > 1.f )
+				if( g_pEngine->pfnRandomLong( 0, 3 ) && groundheightinframes > 3.f )
 					g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
-				else if( groundheightinframes <= 1.f )
+				else if( groundheightinframes <= 3.f )
 					g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
-			} else
-				pCmd->buttons &= ~IN_JUMP;
+			}
 		}
 	}
 
-	if( ( CCVars::Get()->bhop->value == 2.f || CCVars::Get()->bhop->value == 3.f ) && ( g_pLocalPlayer()->m_iWaterLevel >= 2 || g_pLocalPlayer()->flSwimTime > 0.f ) && GetAsyncKeyState( VK_SPACE ) ) {
-		shouldkeepjumping = 8;
+	if( ( CCVars::Get()->bhop->value == 2.f || CCVars::Get()->bhop->value == 3.f ) && g_pLocalPlayer()->m_iMoveType == MOVETYPE_FLY && GetAsyncKeyState( VK_SPACE ) ) {
+		g_pEngine->pfnClientCmd( "+jump -1" );
+		g_pEngine->pfnClientCmd( "-jump -1" );
 	}
+
+	if( ( CCVars::Get()->bhop->value == 2.f || CCVars::Get()->bhop->value == 3.f ) && ( g_pLocalPlayer()->m_iWaterLevel >= 2 || g_pLocalPlayer()->flSwimTime > 0.f ) && GetAsyncKeyState( VK_SPACE ) )
+		shouldkeepjumping = 8;
 
 	if( ( CCVars::Get()->bhop->value == 2.f || CCVars::Get()->bhop->value == 3.f ) && !GetAsyncKeyState( VK_CONTROL ) && CCVars::Get()->bhop_standup->value && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY
 		&& g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) ) {
 		// most simple fix you could ever encounter.. this standup shit doesn't even really work lol..
 		// it is not encorporated perfectly..
-		float playerheight = Instruments::Get()->PlayerHeight( 1 );
+		float playerheight = Instruments::Get()->PlayerHeight( g_pLocalPlayer()->m_iUseHull );
 
 		if( CCVars::Get()->bhop_standup_10aa->value ) {
 			if( Instruments::Get()->flGroundDistMeasuredInFrames() <= CCVars::Get()->bhop_standup_dist->value && g_pLocalPlayer()->m_flFallSpeed > 0 ) {
@@ -1069,33 +1103,25 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 		}
 	}
 
-	if( ( CCVars::Get()->bhop->value == 2.f || CCVars::Get()->bhop->value == 3.f ) && g_pLocalPlayer()->m_iMoveType == MOVETYPE_FLY && GetAsyncKeyState( VK_SPACE ) ) {
-		shouldkeepjumping = 8;
-	}
-
 	if( --shouldkeepjumping > 0 ) {
 		g_pEngine->pfnClientCmd( "+jump -1" );
 		g_pEngine->pfnClientCmd( "-jump -1" );
-	}
+	} else
+		shouldkeepjumping = 0;
 	//--------------------------------------------------------
 
 	//GS + SGS------------------------------------------------ don't ask me what i did here, im not sure either, cause most of this shit doesn't fucking make sense lol..
 	if( bDGstrafe && CCVars::Get()->gs->value && g_pLocalPlayer()->m_iWaterLevel < 2 ) {
 		float randomflfallspeed = g_pEngine->pfnRandomFloat( CCVars::Get()->gs_scroll_fallspeed->value, CCVars::Get()->gs_scroll_fallspeed->value + 40 );
 
-		if( CCVars::Get()->gs_disable_jump->value ) {
-			if( pCmd->buttons & IN_JUMP && GetAsyncKeyState( VK_SPACE ) ) {
-				pCmd->buttons &= ~IN_JUMP;
-			}
-		}
+		if( CCVars::Get()->gs_disable_jump->value && pCmd->buttons & IN_JUMP && GetAsyncKeyState( VK_SPACE ) )
+			pCmd->buttons &= ~IN_JUMP;
 
-		float playerheight = Instruments::Get()->PlayerHeight( 1 );
+		float playerheight = Instruments::Get()->PlayerHeight( g_pLocalPlayer()->m_iUseHull );
 
-		if( CCVars::Get()->gs_nsd->value ) { // wtf, not perfect, how the fuck?? please help.. do i have to set the netspeed? :(
-			if( playerheight <= 0.001f ) {
+		if( CCVars::Get()->gs_nsd->value ) // wtf, not perfect, how the fuck?? please help.. do i have to set the netspeed? :(
+			if( g_pLocalPlayer()->m_iFlags & FL_ONGROUND )
 				*( double* ) g_dwSpeed = 1.0;
-			}
-		}
 
 		static bool DG;
 
@@ -1137,50 +1163,39 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 				if( g_pLocalPlayer()->m_iFlags & FL_ONGROUND ) {
 					if( ( pCmd->buttons & IN_DUCK ) )
 						pCmd->buttons &= ~IN_DUCK;
-					else if( Instruments::Get()->generaterandomintzeroandone( 1 ) )
+					else if( Instruments::Get()->generaterandomintzeroandone( 1 ) || CCVars::Get()->gs_nsd->value )
 						pCmd->buttons |= IN_DUCK;
 				}
 			}
 		}
+
 		DG = !DG;
 	}
 
 	tickssincelastgs += 1;
 	//----------------------------------------------------
-	
-	//CJumpStats::Get()->CL_CreateMove( pCmd );
 
 	g_pLocalPlayer()->m_iFPS = 1 / flFrameTime;
 
 	// Rayish fix.
 	// Remember to use 250 sidemove only (no random on rayish, you can use random between 0 - 250 on dofrag), no forwardmove (unless sideways ofcourse).
-	// idiots gonna get banned either way, lol idc
+	// idiots gonna get banned either way, lol idk
+	if( CCVars::Get()->strafe_control_helper_rayish_fix->value ) {
+		if( pCmd->sidemove > 0.f && ( CCVars::Get()->strafe_control_helper_dir->value == 1 || CCVars::Get()->strafe_control_helper_dir->value == 2 ) )
+			pCmd->buttons |= IN_MOVERIGHT;
+		else if( pCmd->sidemove < 0.f && ( CCVars::Get()->strafe_control_helper_dir->value == 1 || CCVars::Get()->strafe_control_helper_dir->value == 2 ) )
+			pCmd->buttons |= IN_MOVELEFT;
 
-	if( pCmd->sidemove > 0.f && CCVars::Get()->strafe_control_helper_rayish_fix->value
-		&& ( CCVars::Get()->strafe_control_helper_dir->value == 1 || CCVars::Get()->strafe_control_helper_dir->value == 2 ) )
-
-		pCmd->buttons |= IN_MOVERIGHT;
-
-	else if( pCmd->sidemove < 0.f && CCVars::Get()->strafe_control_helper_rayish_fix->value
-		&& ( CCVars::Get()->strafe_control_helper_dir->value == 1 || CCVars::Get()->strafe_control_helper_dir->value == 2 ) )
-
-		pCmd->buttons |= IN_MOVELEFT;
-
-	if( pCmd->forwardmove > 0.f && CCVars::Get()->strafe_control_helper_rayish_fix->value
-		&& ( CCVars::Get()->strafe_control_helper_dir->value == 3 || CCVars::Get()->strafe_control_helper_dir->value == 4 ) )
-
-		pCmd->buttons |= IN_FORWARD;
-
-	else if( pCmd->sidemove < 0.f && CCVars::Get()->strafe_control_helper_rayish_fix->value
-		&& ( CCVars::Get()->strafe_control_helper_dir->value == 3 || CCVars::Get()->strafe_control_helper_dir->value == 4 ) )
-
-		pCmd->buttons |= IN_BACK;
-
+		if( pCmd->forwardmove > 0.f	&& ( CCVars::Get()->strafe_control_helper_dir->value == 3 || CCVars::Get()->strafe_control_helper_dir->value == 4 ) )
+			pCmd->buttons |= IN_FORWARD;
+		else if( pCmd->forwardmove < 0.f && ( CCVars::Get()->strafe_control_helper_dir->value == 3 || CCVars::Get()->strafe_control_helper_dir->value == 4 ) )
+			pCmd->buttons |= IN_BACK;
+	}
 	// -------------------------------
 }
 
 void CClient::HookClient() {
-	memcpy( &g_Client, ( LPVOID ) g_pClient, sizeof( cl_clientfuncs_s ) );
+	memcpy( &g_Client, ( void * ) g_pClient, sizeof( cl_clientfuncs_s ) );
 	g_pClient->HUD_Frame = &this->HUD_Frame;
 	g_pClient->HUD_Redraw = &this->HUD_Redraw;
 	g_pClient->CL_CreateMove = &this->CL_CreateMove;

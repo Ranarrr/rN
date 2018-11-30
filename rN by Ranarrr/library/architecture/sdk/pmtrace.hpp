@@ -5,6 +5,13 @@
 
 #include "util_vector.hpp"
 
+enum Hull {
+	hull_point,		// Point hull.
+	hull_human,		// Human hull. Used by players when standing.
+	hull_large,		// Large hull.
+	hull_head		// Head hull. Used by players when crouching.
+};
+
 struct pmplane_s {
 	Vector	normal;
 	float	dist;

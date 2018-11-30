@@ -1,4 +1,3 @@
-// client dll interface declarations
 #ifndef CDLL_INT_HPP
 #define CDLL_INT_HPP
 
@@ -15,6 +14,8 @@
 #include "rect.hpp"
 #include "cl_dll.hpp"
 #include "com_model.hpp"
+
+// client dll interface declarations
 
 // this file is included by both the engine and the client-dll,
 // so make sure engine declarations aren't done twice
@@ -105,7 +106,7 @@ struct cl_enginefuncs_s {
 	// screen handlers
 	void					( *pfnFillRGBA )			( int x, int y, int width, int height, int r, int g, int b, int a );
 	int						( *pfnGetScreenInfo ) 		( SCREENINFO_s *pscrinfo );
-	void					( *pfnSetCrosshair )		( int  hspr, rect_s rc, int r, int g, int b );
+	void					( *pfnSetCrosshair )		( int hspr, rect_s rc, int r, int g, int b );
 
 	// cvar handlers
 	cvar_s					*( *pfnRegisterVariable )	( char *szName, char *szValue, int flags );
@@ -125,7 +126,7 @@ struct cl_enginefuncs_s {
 	void					( *pfnPlaySoundByIndex )	( int iSound, float volume );
 
 	// vector helpers
-	void					( *pfnAngleVectors )		( const Vector vecAngles, Vector forward, Vector right, Vector up );
+	void					( *pfnAngleVectors )		( const float *vecAngles, float *forward, float *right, float *up );
 
 	// text message system
 	client_textmessage_s	*( *pfnTextMessageGet )		( const char *pName );
@@ -166,20 +167,20 @@ struct cl_enginefuncs_s {
 
 	float					( *GetClientTime )			();
 	void					( *V_CalcShake )			();
-	void					( *V_ApplyShake )			( Vector origin, Vector angles, float factor );
+	void					( *V_ApplyShake )			( float *origin, float *angles, float factor );
 
-	int						( *PM_PointContents )		( Vector point, int *truecontents );
-	int						( *PM_WaterEntity )			( Vector p );
+	int						( *PM_PointContents )		( float *point, int *truecontents );
+	int						( *PM_WaterEntity )			( float *p );
 	pmtrace_s				*( *PM_TraceLine )			( float *start, float *end, int flags, int usehull, int ignore_pe );
 
 	model_s					*( *CL_LoadModel )			( const char *modelname, int *index );
 	int						( *CL_CreateVisibleEntity )	( int type, cl_entity_s *ent );
 
 	const model_s 			*( *GetSpritePointer )		( int hSprite );
-	void					( *pfnPSByNameAtLocation )	( char *szSound, float volume, Vector origin ); // PlaySoundByNameAtLocation
+	void					( *pfnPSByNameAtLocation )	( char *szSound, float volume, float *origin ); // PlaySoundByNameAtLocation
 
 	unsigned short			( *pfnPrecacheEvent )		( int type, const char* psz );
-	void					( *pfnPlaybackEvent )		( int flags, const edict_s *pInvoker, unsigned short eventindex, float delay, Vector origin, Vector angles, float fparam1, float fparam2, int iparam1, int iparam2, int bparam1, int bparam2 );
+	void					( *pfnPlaybackEvent )		( int flags, const edict_s *pInvoker, unsigned short eventindex, float delay, float *origin, float *angles, float fparam1, float fparam2, int iparam1, int iparam2, int bparam1, int bparam2 );
 	void					( *pfnWeaponAnim )			( int iAnim, int body );
 	float					( *pfnRandomFloat )			( float flLow, float flHigh );
 	long					( *pfnRandomLong )			( long lLow, long lHigh );

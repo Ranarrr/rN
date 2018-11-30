@@ -8,8 +8,6 @@
 class Instruments {
 	Instruments();
 
-	float GetTraceEndPosN( Vector start, Vector end, int N );
-
 public:
 	virtual ~Instruments();
 	static Instruments* Get();
@@ -18,27 +16,28 @@ public:
 
 	float			flGroundHeight();
 	float			flEdgeDist();
+	float			flAngleAtGround();
+	float			get_edge_inair();
+	float			PlayerHeight( int usehull );
+	float			flGroundDistMeasuredInFrames();
+
+	bool			is_above_facing_wall();
 	bool			bIsValidEnt( int idx );
-	int				generaterandomintzeroandone( int Reason );
 	bool			HookCvarVariable( char *szNewCvarName, char *szOrigCvarName, float **ppCvarValue, bool createfcvar );
 	bool			WorldToScreen( float *pflOrigin, float *pflVecScreen );
 	bool			bIsVisible( float *pflFrom, float *pflTo );
-	float			PlayerHeight( int usehull );
-	int				autodir();
 	bool			bSurfStrafeHelper();
 	bool			bSurf();
 	bool			HoldingPistol();
+
+	int				generaterandomintzeroandone( int Reason );
 	int				ByteControl( float in );
-	float			flAngleAtGround();
-	float			get_edge_inair();
-	bool			is_above_facing_wall();
-	void __fastcall	VectorAngles( const float *forward, float *angles );
-	char			*PrefHack( char *IfCmd, char *Name );
-	std::string		szDirFile( char* pszName );
-	std::string		Prefix_ini();
 	int				autodirwithvelocity();
 
-	float	flGroundDistMeasuredInFrames();
+	char			*PrefHack( char *IfCmd, char *Name );
+
+	std::string		szDirFile( char* pszName );
+	std::string		Prefix_ini();
 };
 
 #endif // !INSTRUMENTS_HPP

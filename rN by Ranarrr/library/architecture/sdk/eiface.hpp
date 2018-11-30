@@ -54,9 +54,9 @@ struct TraceResult_s {
 	int		fInOpen;
 	int		fInWater;
 	float	flFraction;			// time completed, 1.0 = didn't hit anything
-	Vector	vecEndPos;			// final position
+	float	*vecEndPos;			// final position
 	float	flPlaneDist;
-	Vector	vecPlaneNormal;		// surface normal at impact
+	float	*vecPlaneNormal;		// surface normal at impact
 	edict_s	*pHit;				// entity the surface is on
 	int		iHitgroup;			// 0 == generic, non zero is specific body part
 };

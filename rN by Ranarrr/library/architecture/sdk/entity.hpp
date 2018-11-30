@@ -13,7 +13,7 @@ public:
 
 	bool m_bInDuckCmd, m_bInDuckppmove, m_bIsAlive, m_bIML, m_bIMR, m_bIF, m_bIB, m_bIA, m_bOnSteam, m_bIsSteam, bDBhop, m_bIsConnected;
 
-	// m_iUseHull - 0 = regular player hull, 1 = ducked player hull, 2 = point hull
+	// m_iUseHull - 0 = regular player hull, 1 = ducked player hull
 	// m_iWaterLevel - 0 = not touching water, 1 = water at feet, 2 = covered in water to chest can swim if ducking or is swimming if feet is not touching ground, 3 = covered in water/swimming
 	// m_iGravity - 0 = in ladder or similar, 1 = regular standing if gravity is applied or smth
 

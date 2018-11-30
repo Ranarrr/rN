@@ -88,10 +88,6 @@ struct edict_s;
 #define DEAD_RESPAWNABLE		3
 #define DEAD_DISCARDBODY		4
 
-#define	DAMAGE_NO				0
-#define	DAMAGE_YES				1
-#define	DAMAGE_AIM				2
-
 // entity effects
 #define	EF_BRIGHTFIELD			1		// swirling cloud of particles
 #define	EF_MUZZLEFLASH 			2		// single frame ELIGHT on entity attachment 0
@@ -706,7 +702,7 @@ struct link_s {
 };
 
 struct plane_s {
-	Vector		normal;
+	float		*normal;
 	float		dist;
 };
 
@@ -715,7 +711,7 @@ struct trace_s {
 	int			startsolid;		// if true, the initial point was in a solid area
 	int			inopen, inwater;
 	float		fraction;		// time completed, 1.0 = didn't hit anything
-	Vector		endpos;			// final position
+	float		*endpos;			// final position
 	plane_s		plane;			// surface normal at impact
 	edict_s		*ent;			// entity the surface is on
 	int			hitgroup;		// 0 == generic, non zero is specific body part

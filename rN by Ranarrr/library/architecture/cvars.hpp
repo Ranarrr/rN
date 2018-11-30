@@ -4,13 +4,15 @@
 #include "main.hpp"
 
 // wrapper for registering cvar (variable)
-#define reg_cvar( name, defval )						( g_Engine.pfnRegisterVariable( Instruments::Get()->PrefHack( "", name ), defval, NULL ) )
+#define reg_cvar( name, defval )			( g_Engine.pfnRegisterVariable( Instruments::Get()->PrefHack( "", name ), defval, NULL ) )
 // if the command is a toggle function, just pass a nullptr as the 4th arg ( funcoff )
 #define reg_cmd( name, btogglefunc, funcon, funcoff )	g_Engine.pfnAddCommand( Instruments::Get()->PrefHack( btogglefunc ? "" : "+", name ), funcon );			\
-														if( funcoff != nullptr && !btogglefunc ) { g_Engine.pfnAddCommand( Instruments::Get()->PrefHack( "-", name ), funcoff ); }
+							if( funcoff != nullptr && !btogglefunc ) { g_Engine.pfnAddCommand( Instruments::Get()->PrefHack( "-", name ), funcoff ); }
 
 class CCVars {
 	CCVars();
+
+	const char *version = "0.202";
 
 public:
 	virtual ~CCVars();

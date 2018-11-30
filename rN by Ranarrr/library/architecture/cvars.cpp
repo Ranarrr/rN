@@ -77,7 +77,7 @@ void CCVars::Init() {
 	CCVars::Get()->ExecFunc( XString( /*rN.cfg*/ 0x02, 0x06, 0x1E, 0x6C510E42, 0x44440000 ).c() );
 
 	g_Engine.Con_Printf( "\n\t\t" );
-	g_Engine.Con_Printf( XString( /*rN v0.2 by Ranarrr*/ 0x05, 0x12, 0x83, 0xF1CAA5F0, 0xB7A6BBAA, 0xE9F5ADDC, 0xEEFEF0E0, 0xE1E60000 ).c() );
+	g_Engine.Con_Printf( XString( /*rN v%s by Ranarrr*/ 0x05, 0x11, 0xEF, 0x9DBED184, 0xD687D594, 0x8ED8AB9B, 0x959D8F8C, 0x8D000000 ).c(), version );
 	g_Engine.Con_Printf( "\n\t\t" );
 	g_Engine.Con_Printf( XString( /*Want to thank <3:*/ 0x05, 0x11, 0x36, 0x6156564D, 0x1A4F531D, 0x4A57212F, 0x29637876, 0x7C000000 ).c() );
 	g_Engine.Con_Printf( "\n\n\t\t\t\t\t\t" );
@@ -108,7 +108,7 @@ void CCVars::Init() {
 	/*rN v0.10*/ thirdperson_up = reg_cvar( "thirdperson_up", "0" );
 	/*rN v0.10*/ thirdperson_back = reg_cvar( "thirdperson_back", "100" );
 	/*rN v0.10*/ thirdperson_alpha = reg_cvar( "thirdperson_alpha", "128" );
-	/*rN v0.10*/ strafe_control_helper_althreshold = reg_cvar( "strafe_control_helper_althreshold", "-2" );
+	/*rN v0.10*/ strafe_control_helper_althreshold = reg_cvar( "strafe_control_helper_althreshold", "2" );
 	/*rN v0.10*/ strafe_control_helper_arthreshold = reg_cvar( "strafe_control_helper_arthreshold", "2" ); 
 	/*rN v0.10*/ strafe_control_helper_adelay = reg_cvar( "strafe_control_helper_adelay", "8" );
 	/*rN v0.10*/ strafe_control_helper_dir = reg_cvar( "strafe_control_helper_dir", "1" );
