@@ -8,7 +8,7 @@ This solution is extremely unorganized!</s>
 # TODO-List
 
 - KnifeBot
-- Autoduck on edges (for blockjumping and such)
+<s>- Autoduck on edges (for blockjumping and such)</s>
 - pSpeed
 - Aimbot
 - Measuring blocks
