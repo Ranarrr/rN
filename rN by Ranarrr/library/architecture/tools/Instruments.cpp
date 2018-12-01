@@ -23,24 +23,23 @@ float Instruments::flAngleAtGround() {
 }
 
 bool Instruments::bSurf() { // if on surf or not
-	return ( flAngleAtGround() > 45.000001 && Instruments::Get()->flGroundHeight() < 30.0f );
+	return ( flAngleAtGround() > 45.000001 && flGroundHeight() < 30.0f );
 }
 
 bool Instruments::bSurfStrafeHelper() {
-	return ( flAngleAtGround() > 45.000001 && CCVars::Get()->strafe_control_helper_surffix->value && Instruments::Get()->flGroundHeight() < CCVars::Get()->strafe_control_helper_surffix_height->value );
+	return ( flAngleAtGround() > 45.000001 && CCVars::Get()->strafe_control_helper_surffix->value && flGroundHeight() < CCVars::Get()->strafe_control_helper_surffix_height->value );
 }
 
 float getdir( Vector fwd ) {
-	if( fwd[ 1 ] == 0.f && fwd[ 0 ] == 0.f )
+	if( fwd.y == 0.f && fwd.x == 0.f )
 		return 0.f;
-	else {
-		float yaw = RAD2DEG( atan2( fwd[ 1 ], fwd[ 0 ] ) );
 
-		if( yaw < 0.f )
-			yaw += 360;
+	float yaw = RAD2DEG( atan2( fwd.y, fwd.x ) );
 
-		return yaw;
-	}
+	if( yaw < 0.f )
+		yaw += 360.f;
+
+	return yaw;
 }
 
 int Instruments::autodirwithvelocity() {
@@ -58,17 +57,14 @@ int Instruments::autodirwithvelocity() {
 	if( delta < 0.f )
 		delta += 360.f;
 
-	if( delta ) { // delta is more than 0 if going sideways to the right or backwards
-		if( delta < ( 180.f + threshold ) && delta > ( 180.f - threshold ) )
-			dir = 2;
-		else if( delta < ( 90.f + threshold ) && delta > ( 90.f - threshold ) )
-			dir = 3;
-		else if( delta < ( 270.f + threshold ) && delta > ( 270.f - threshold ) )
-			dir = 4;
-	} else // guaranteed to be forward because yaw is the same as the velocity angle.
-		dir = 1;
+	if( delta < ( 180.f + threshold ) && delta > ( 180.f - threshold ) )
+		dir = 2;
+	else if( delta < ( 90.f + threshold ) && delta > ( 90.f - threshold ) )
+		dir = 3;
+	else if( delta < ( 270.f + threshold ) && delta > ( 270.f - threshold ) )
+		dir = 4;
 
-	if( velocityangle == 0.f )
+	if( velocityangle == 0.f || delta == 0.f )
 		dir = 1;
 
 	return dir;
@@ -104,11 +100,11 @@ bool Instruments::is_above_facing_wall() {
 
 	t = g_Engine.PM_TraceLine( t->endpos, t->endpos - Vector( 0.f, 0.f, 8192.f ), PM_STUDIO_IGNORE, hull_human, -1 );
 
-	return t->endpos[ 2 ] > g_pLocalPlayer()->m_vecOrigin[ 2 ] ? false : true; // should i use - 14.f or not? There were no noticeable differences.
+	return t->endpos[ 2 ] > g_pLocalPlayer()->m_vecOrigin[ 2 ] ? false : true;
 }
 
 // N == vector axis of end-position of trace, 0 == x, 1 == y, 2 == z | Credits to RIscRIpt
-float GetTraceEndPosN( Vector start, Vector end, int N ) {
+inline float GetTraceEndPosN( Vector start, Vector end, int N ) {
 	pmtrace_s t;
 	g_pLocalPlayer()->m_iUseHull == 1 ? g_Engine.pEventAPI->EV_SetTraceHull( 1 ) : g_Engine.pEventAPI->EV_SetTraceHull( 0 );
 	g_Engine.pEventAPI->EV_PlayerTrace( start, end, PM_STUDIO_BOX, -1, &t );
@@ -160,7 +156,7 @@ int Instruments::generaterandomintzeroandone( int Reason ) {
 
 		betweenzeroandone += g_Engine.pfnRandomFloat( 0.1f, 0.4f );
 
-		if( g_pLocalPlayer()->m_flVelocity > 350.f )
+		if( g_pLocalPlayer()->m_flVelocity > 370.f )
 			betweenzeroandone = 0.5f;
 
 		if( betweenzeroandone <= 0.8f && betweenzeroandone >= 0.2f )
@@ -395,9 +391,11 @@ float Instruments::PlayerHeight( int usehull ) { // credits to terazoid i think
 
 inline char *Instruments::PrefHack( char *IfCmd, char *Name ) {
 	char *o = new char[ 64 ];
+
 	strcpy( o, IfCmd );
 	strcat( o, Prefix_ini().c_str() );
 	strcat( o, Name );
+
 	return o;
 }
 
@@ -410,13 +408,11 @@ std::string Instruments::Prefix_ini() {
 	std::string prefix_ini;
 	std::ifstream myfile( szDirFile( XString( /*prefix.ini*/ 0x03, 0x0A, 0x0D, 0x7D7C6A76, 0x786A3D7D, 0x7B7F0000 ).c() ) );
 
-	if( !( myfile ) ) {
+	if( !( myfile ) )
 		prefix_ini = XString( /*rN^^*/ 0x01, 0x04, 0x5B, 0x29120300 ).c();
-	}
 
-	while( myfile ) {
+	while( myfile )
 		std::getline( myfile, prefix_ini );
-	}
 
 	myfile.close();
 

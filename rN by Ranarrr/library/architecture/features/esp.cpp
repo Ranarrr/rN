@@ -51,7 +51,7 @@ void CEsp::PlayerEsp( int iIndex ) {
 			CDrawing::Get()->DrawStringCenter( flDrawPos[ 0 ], flDrawPos[ 1 ] + CDrawing::Get()->GetStringHeight(), color, XString( /*Dist: %.0fm*/ 0x03, 0x0B, 0x19, 0x5D736868, 0x273E3A0E, 0x11444E00 ).c(), dist );
 
 		float l = COP.m_vecOrigin.DistTo( g_pLocalPlayer()->m_vecViewOrg );
-		l = max( 100, l );
+		l = max( 100.f, l );
 		const float pw = 16.0f; // player width
 		const float ph = 36.0f; // player height
 		int bw = ( 30.0f * pw ) / l * 15;
@@ -64,34 +64,32 @@ void CEsp::PlayerEsp( int iIndex ) {
 
 		if( CCVars::Get()->esp_name->value )
 			CDrawing::Get()->DrawStringCenter( flDrawPos[ 0 ], flDrawPos[ 1 ], color, XString( /*%s*/ 0x01, 0x02, 0x4B, 0x6E3F0000 ).c(), COP.m_Info.name );
-
-		// COP.m_bVisible ? CDrawing::Get()->DrawStringCenter( flDrawPos[ 0 ], flDrawPos[ 1 ] + CDrawing::Get()->GetStringHeight() * 2, color, "VISIBLE" ) : CDrawing::Get()->DrawStringCenter( flDrawPos[ 0 ], flDrawPos[ 1 ] + CDrawing::Get()->GetStringHeight() * 2, color, "NOT VISIBLE" );
 	}
 }
 
 void CEsp::RegisterCVars() {
-	CCVars::Get()->esp_ct_r_nvis = reg_cvar( "esp_ct_r_nvis", "0" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_ct_r_nvis" ), "0", NULL );
-	CCVars::Get()->esp_ct_g_nvis = reg_cvar( "esp_ct_g_nvis", "0" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_ct_g_nvis" ), "0", NULL );
-	CCVars::Get()->esp_ct_b_nvis = reg_cvar( "esp_ct_b_nvis", "255" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_ct_b_nvis" ), "255", NULL );
-	CCVars::Get()->esp_ct_a_nvis = reg_cvar( "esp_ct_a_nvis", "155" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_ct_a_nvis" ), "155", NULL );
+	CCVars::Get()->esp_ct_r_nvis = reg_cvar( "esp_ct_r_nvis", "0" );
+	CCVars::Get()->esp_ct_g_nvis = reg_cvar( "esp_ct_g_nvis", "0" );
+	CCVars::Get()->esp_ct_b_nvis = reg_cvar( "esp_ct_b_nvis", "255" );
+	CCVars::Get()->esp_ct_a_nvis = reg_cvar( "esp_ct_a_nvis", "155" );
 
-	CCVars::Get()->esp_ct_r_vis = reg_cvar( "esp_ct_r_vis", "0" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_ct_r_vis" ), "150", NULL );
-	CCVars::Get()->esp_ct_g_vis = reg_cvar( "esp_ct_g_vis", "0" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_ct_g_vis" ), "255", NULL );
-	CCVars::Get()->esp_ct_b_vis = reg_cvar( "esp_ct_b_vis", "255" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_ct_b_vis" ), "0", NULL );
-	CCVars::Get()->esp_ct_a_vis = reg_cvar( "esp_ct_a_vis", "255" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_ct_a_vis" ), "255", NULL );
+	CCVars::Get()->esp_ct_r_vis = reg_cvar( "esp_ct_r_vis", "0" );
+	CCVars::Get()->esp_ct_g_vis = reg_cvar( "esp_ct_g_vis", "0" );
+	CCVars::Get()->esp_ct_b_vis = reg_cvar( "esp_ct_b_vis", "255" );
+	CCVars::Get()->esp_ct_a_vis = reg_cvar( "esp_ct_a_vis", "255" );
 
-	CCVars::Get()->esp_t_r_nvis = reg_cvar( "esp_t_r_nvis", "255" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_t_r_nvis" ), "255", NULL );
-	CCVars::Get()->esp_t_g_nvis = reg_cvar( "esp_t_g_nvis", "0" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_t_g_nvis" ), "0", NULL );
-	CCVars::Get()->esp_t_b_nvis = reg_cvar( "esp_t_b_nvis", "0" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_t_b_nvis" ), "0", NULL );
-	CCVars::Get()->esp_t_a_nvis = reg_cvar( "esp_t_a_nvis", "155" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_t_a_nvis" ), "255", NULL );
+	CCVars::Get()->esp_t_r_nvis = reg_cvar( "esp_t_r_nvis", "255" );
+	CCVars::Get()->esp_t_g_nvis = reg_cvar( "esp_t_g_nvis", "0" );
+	CCVars::Get()->esp_t_b_nvis = reg_cvar( "esp_t_b_nvis", "0" );
+	CCVars::Get()->esp_t_a_nvis = reg_cvar( "esp_t_a_nvis", "155" );
 
-	CCVars::Get()->esp_t_r_vis = reg_cvar( "esp_t_r_vis", "255" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_t_r_vis" ), "0", NULL );
-	CCVars::Get()->esp_t_g_vis = reg_cvar( "esp_t_g_vis", "0" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_t_g_vis" ), "255", NULL );
-	CCVars::Get()->esp_t_b_vis = reg_cvar( "esp_t_b_vis", "0" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_t_b_vis" ), "0", NULL );
-	CCVars::Get()->esp_t_a_vis = reg_cvar( "esp_t_a_vis", "255" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_t_a_vis" ), "255", NULL );
+	CCVars::Get()->esp_t_r_vis = reg_cvar( "esp_t_r_vis", "255" );
+	CCVars::Get()->esp_t_g_vis = reg_cvar( "esp_t_g_vis", "0" );
+	CCVars::Get()->esp_t_b_vis = reg_cvar( "esp_t_b_vis", "0" );
+	CCVars::Get()->esp_t_a_vis = reg_cvar( "esp_t_a_vis", "255" );
 
-	CCVars::Get()->esp_box = reg_cvar( "esp_box", "1" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_box" ), "1", NULL );
-	CCVars::Get()->esp_name = reg_cvar( "esp_name", "1" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_name" ), "1", NULL );
-	CCVars::Get()->esp_dist = reg_cvar( "esp_dist", "1" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp_dist" ), "1", NULL );
-	CCVars::Get()->esp = reg_cvar( "esp", "1" ); // g_Engine.pfnRegisterVariable( PrefHack( "", Prefix_ini(), "esp" ), "1", NULL );
+	CCVars::Get()->esp_box = reg_cvar( "esp_box", "1" );
+	CCVars::Get()->esp_name = reg_cvar( "esp_name", "1" );
+	CCVars::Get()->esp_dist = reg_cvar( "esp_dist", "1" );
+	CCVars::Get()->esp = reg_cvar( "esp", "1" );
 }

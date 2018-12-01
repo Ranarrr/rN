@@ -73,7 +73,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ENGINEHACKBASENEW_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;VC_EXTRALEAN;WIN32_LEAN_AND_MEAN;NOGDI;NOGDICAPMASKS;NOWINMESSAGES;NOWINSTYLES;NOSYSMETRICS;NOMENUS;NOICONS;NOKEYSTATES;NOSYSCOMMANDS;NORASTEROPS;NOSHOWWINDOW;OEMRESOURCE;NOATOM;NOCLIPBOARD;NOCOLOR;NOCTLMGR;NODRAWTEXT;NOKERNEL;NONLS;NOMEMMGR;NOMETAFILE;NOMSG;NOOPENFILE;NOSCROLL;NOSERVICE;NOSOUND;NOTEXTMETRIC;NOWH;NOWINOFFSETS;NOCOMM;NOKANJI;NOHELP;NOPROFILER;NODEFERWINDOWPOS;NOMCX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <BrowseInformation>false</BrowseInformation>

@@ -1,6 +1,6 @@
 ﻿#include "client.hpp"
 
-// rN v0.202 by Ranarrr source release.
+// rN by Ranarrr source release.
 // Credits:
 //
 // - RIscRIpt
@@ -374,8 +374,12 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 			if( Instruments::Get()->is_above_facing_wall() && Instruments::Get()->get_edge_inair() < 25.f && ~g_pLocalPlayer()->m_iFlags & FL_ONGROUND )
 				pCmd->buttons |= IN_DUCK;
 		}
-			
 	//-------------------
+
+	// Auto-jumpoff ---------
+	if( CCVars::Get()->edge_jumpoff_dist->value && Instruments::Get()->flEdgeDist() <= CCVars::Get()->edge_jumpoff_dist->value && g_pLocalPlayer()->m_iFlags & FL_ONGROUND )
+		pCmd->buttons |= IN_JUMP;
+	// ---------------------
 
 	// auto direction for the strafe helper ( calculated by angle of velocity )
 	if( CCVars::Get()->strafe_control_helper_dir_auto->value )
@@ -961,16 +965,13 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 
 	//BHOP ---------------------------------------------------
 	// Bhop method 1
-	if( CCVars::Get()->bhop->value == 1.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && g_pLocalPlayer()->flSwimTime == 0.f
-		&& pCmd->buttons & IN_JUMP && GetAsyncKeyState( VK_SPACE ) && !Instruments::Get()->bSurf() && ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity < CCVars::Get()->bhop_wog->value ) ) {
+	if( CCVars::Get()->bhop->value == 1.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && g_pLocalPlayer()->flSwimTime == 0.f && pCmd->buttons & IN_JUMP && GetAsyncKeyState( VK_SPACE ) 
+		&& !Instruments::Get()->bSurf() && ( ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity <= CCVars::Get()->bhop_wog->value ) || ( CCVars::Get()->bhop_wog->value <= 0.f ) ) ) {
 
 		float playerheight = Instruments::Get()->PlayerHeight( g_pLocalPlayer()->m_iUseHull );
 
-		if( Instruments::Get()->bSurf() || ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity > CCVars::Get()->bhop_wog->value ) )
-			pCmd->buttons &= ~IN_JUMP;
-
 		if( CCVars::Get()->bhop_standup->value && !GetAsyncKeyState( VK_CONTROL ) ) { // most simple fix you could ever encounter.. this standup shit doesn't even really work lol..
-			// it is not encorporated perfectly..
+			// it is not incorporated perfectly..
 			if( CCVars::Get()->bhop_standup_10aa->value ) {
 				if( Instruments::Get()->flGroundDistMeasuredInFrames() <= CCVars::Get()->bhop_standup_dist->value && g_pLocalPlayer()->m_flFallSpeed > 0 ) // pls fix
 					pCmd->buttons |= IN_DUCK;
@@ -986,23 +987,25 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 
 		if( g_pLocalPlayer()->m_flFallSpeed >= 0.f ) {
 			if( playerheight <= CCVars::Get()->bhop_start->value ) {
-				if( g_pLocalPlayer()->bDBhop )
-					pCmd->buttons |= IN_JUMP;
+				g_pLocalPlayer()->bDBhop ? pCmd->buttons |= IN_JUMP : pCmd->buttons &= ~IN_JUMP;
 
 				g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
-			}
+			} else
+				pCmd->buttons &= ~IN_JUMP;
+
 		} else if( g_pLocalPlayer()->m_flFallSpeed < 0.f ) {
 			if( playerheight <= CCVars::Get()->bhop_end->value ) {
-				if( g_pLocalPlayer()->bDBhop )
-					pCmd->buttons |= IN_JUMP;
+				g_pLocalPlayer()->bDBhop ? pCmd->buttons |= IN_JUMP : pCmd->buttons &= ~IN_JUMP;
 
 				g_pLocalPlayer()->bDBhop = !g_pLocalPlayer()->bDBhop;
-			}
+			} else
+				pCmd->buttons &= ~IN_JUMP;
 		}
 	}
 
 	// Bhop method 2
-	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) && CCVars::Get()->patterns.size() != 0 && g_pLocalPlayer()->flSwimTime == 0.f ) {
+	if( CCVars::Get()->bhop->value == 2.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) && CCVars::Get()->patterns.size() != 0 && g_pLocalPlayer()->flSwimTime == 0.f
+		&& !Instruments::Get()->bSurf() && ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity <= CCVars::Get()->bhop_wog->value || !CCVars::Get()->bhop_wog->value ) ) {
 		if( shouldgetPattern ) {
 			pattern = CCVars::Get()->patterns.at( g_pEngine->pfnRandomLong( 0, CCVars::Get()->patterns.size() - 1 ) );
             tick = 0;
@@ -1046,7 +1049,7 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 
 	// Bhop method 3
 	if( CCVars::Get()->bhop->value == 3.f && g_pLocalPlayer()->m_iMoveType != MOVETYPE_FLY && g_pLocalPlayer()->m_iWaterLevel < 2 && GetAsyncKeyState( VK_SPACE ) && g_pLocalPlayer()->flSwimTime == 0.f
-		&& !Instruments::Get()->bSurf() && ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity < CCVars::Get()->bhop_wog->value || !CCVars::Get()->bhop_wog->value ) ) {
+		&& !Instruments::Get()->bSurf() && ( CCVars::Get()->bhop_wog->value && g_pLocalPlayer()->m_flVelocity <= CCVars::Get()->bhop_wog->value || !CCVars::Get()->bhop_wog->value ) ) {
 		float playerheight = Instruments::Get()->PlayerHeight( g_pLocalPlayer()->m_iUseHull ), groundheightinframes = Instruments::Get()->flGroundDistMeasuredInFrames();
 
 		if( g_pLocalPlayer()->m_flFallSpeed >= 0.f ) {
@@ -1180,7 +1183,7 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	// Rayish fix.
 	// Remember to use 250 sidemove only (no random on rayish, you can use random between 0 - 250 on dofrag), no forwardmove (unless sideways ofcourse).
 	// idiots gonna get banned either way, lol idk
-	if( CCVars::Get()->strafe_control_helper_rayish_fix->value ) {
+	if( CCVars::Get()->strafe_control_helper_rayish_fix->value ) { // theres a problem if the user uses the +strafe command and strafes
 		if( pCmd->sidemove > 0.f && ( CCVars::Get()->strafe_control_helper_dir->value == 1 || CCVars::Get()->strafe_control_helper_dir->value == 2 ) )
 			pCmd->buttons |= IN_MOVERIGHT;
 		else if( pCmd->sidemove < 0.f && ( CCVars::Get()->strafe_control_helper_dir->value == 1 || CCVars::Get()->strafe_control_helper_dir->value == 2 ) )

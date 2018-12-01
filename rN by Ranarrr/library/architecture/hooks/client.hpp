@@ -1,6 +1,8 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
+#pragma once
+
 #include "../main.hpp"
 
 class CClient {

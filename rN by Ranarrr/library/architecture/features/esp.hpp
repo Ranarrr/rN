@@ -16,4 +16,4 @@ public:
 	void RegisterCVars();
 };
 
-#endif // ESP_HPP
+#endif // !ESP_HPP

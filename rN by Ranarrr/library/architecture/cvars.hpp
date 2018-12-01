@@ -12,7 +12,7 @@
 class CCVars {
 	CCVars();
 
-	const char *version = "0.202";
+	const char *version = "0.203";
 
 public:
 	virtual ~CCVars();

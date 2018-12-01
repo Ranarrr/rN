@@ -4,11 +4,11 @@
 #include "../main.hpp"
 
 class CHook {
-	CHook();
+					CHook();
 
 public:
-	virtual ~CHook();
-	static CHook* Get();
+	virtual			~CHook();
+	static CHook*	Get();
 
 	bool			Initialize();
 };
