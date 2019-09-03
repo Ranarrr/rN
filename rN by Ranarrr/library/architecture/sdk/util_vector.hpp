@@ -97,9 +97,7 @@ public:
 	
 	inline float CalcYaw() {
 		if( this->y < 0.f )
-			return ( this->y + 360.f );
-		
-		return this->y;
+			this->y += 360.f;
 	}
 
 	inline float *Base() { return ( float * ) this; }
