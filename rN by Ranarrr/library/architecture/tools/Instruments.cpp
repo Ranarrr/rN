@@ -193,6 +193,11 @@ int Instruments::generaterandomintzeroandone( int Reason ) {
 	return ( int ) betweenzeroandone;
 }
 
+float Instruments::CalcYaw( float &yaw ) {
+	if( yaw < 0.f )
+		yaw += 360.f;
+}
+
 // credits to ir0n, bONE87
 // trims whitespace from beginning and end of a string
 static std::string Trim( std::string& str ) {
