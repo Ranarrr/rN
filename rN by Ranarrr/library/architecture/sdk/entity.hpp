@@ -9,7 +9,7 @@ class CLocalPlayer {
 public:
 	Vector m_vecForward, m_vecRight, m_vecEyePosition, m_vecViewHeight, m_vecOrigin, m_vecVelocity, m_vecViewAngles, m_vecMins[ 4 ], m_vecBaseVelocity, m_vecViewOrg, m_vecPunchAngle;
 
-	float m_flFrametime, m_flFallSpeed, m_flVelocity, m_flClientMaxSpeed, m_flMaxSpeed, flSwimTime, m_flYaw, m_flOldYaw;
+	float m_flFrametime, m_flFallSpeed, m_flVelocity, m_flClientMaxSpeed, m_flMaxSpeed, flSwimTime, m_flYaw, m_flOldYaw, m_flAccumYaw, m_flOldAccumYaw;
 
 	bool m_bInDuckCmd, m_bInDuckppmove, m_bIsAlive, m_bIML, m_bIMR, m_bIF, m_bIB, m_bIA, m_bOnSteam, m_bIsSteam, bDBhop, m_bIsConnected;
 
