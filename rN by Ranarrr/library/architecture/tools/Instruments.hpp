@@ -20,6 +20,7 @@ public:
 	float			get_edge_inair();
 	float			PlayerHeight( int usehull );
 	float			flGroundDistMeasuredInFrames();
+	float 			CalcYaw( float &yaw )
 
 	bool			is_above_facing_wall();
 	bool			bIsValidEnt( int idx );
