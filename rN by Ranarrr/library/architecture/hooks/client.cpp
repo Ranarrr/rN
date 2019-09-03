@@ -222,7 +222,6 @@ void CClient::HUD_PlayerMove( playermove_s *ppmove, int server ) {
 	g_pLocalPlayer()->m_flMaxSpeed = ppmove->maxspeed;
 
 	g_pEngine->GetMaxClients() <= 1 ? g_pLocalPlayer()->m_bIsConnected = false : g_pLocalPlayer()->m_bIsConnected = true;
-	g_Engine.GetViewAngles( g_pLocalPlayer()->m_vecViewAngles );
 	g_Engine.pEventAPI->EV_LocalPlayerViewheight( g_pLocalPlayer()->m_vecViewHeight );
 	g_pLocalPlayer()->m_vecEyePosition = g_pLocalPlayer()->m_vecViewHeight + ppmove->origin;
 }
@@ -313,10 +312,23 @@ int CClient::CL_IsThirdPerson() {
 }
 
 void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
-	GetCursorPos( &current_m_pos );
+	//GetCursorPos( &current_m_pos );
+
+	// trying to use angles in-game instead of getting the mouse which is dependent on whether or not
+	// raw input is enabled in-game.
+	g_pLocalPlayer()->m_flYaw = pCmd->viewangles.y;
+	Instruments::Get()->CalcYaw( g_pLocalPlayer()->m_flYaw );
 
 	// if (mx > 0) mouse moves to the right, if (mx < 0) mouse moves to the left
-	if( g_pLocalPlayer()->m_bIsSteam ) {
+	if( g_pLocalPlayer()->m_flYaw < 30.f && g_pLocalPlayer()->m_flOldYaw > 330.f ) {
+		g_pLocalPlayer()->m_flAccumYaw += ( 360.f - g_pLocalPlayer()->m_flOldYaw ) + g_pLocalPlayer()->m_flYaw;
+		g_pLocalPlayer()->m_iMX = ( g_pLocalPlayer()->m_flAccumYaw ) - ( g_pLocalPlayer()->m_flOldAccumYaw );
+	} else if( g_pLocalPlayer()->m_flOldYaw < 30.f && g_pLocalPlayer()->m_flYaw > 330.f ) {
+		g_pLocalPlayer()->m_flAccumYaw += ( 360.f - g_pLocalPlayer()->m_flYaw ) + g_pLocalPlayer()->m_flOldYaw;
+		g_pLocalPlayer()->m_iMX = ( g_pLocalPlayer()->m_flAccumYaw ) - ( g_pLocalPlayer()->m_flOldAccumYaw );
+	}
+	
+	/*if( g_pLocalPlayer()->m_bIsSteam ) {
 		if( g_Engine.pfnGetCvarPointer( "m_rawinput" )->value ) {
 			if( current_m_pos.x >= ( g_Engine.GetWindowCenterX() * 2 ) - 1 )
 				g_pLocalPlayer()->m_iMX = 1;
@@ -331,7 +343,7 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	} else
 		g_pLocalPlayer()->m_iMX = ( current_m_pos.x - g_Engine.GetWindowCenterX() );
 	
-	g_Client.CL_CreateMove( flFrameTime, pCmd, iActive );
+	g_Client.CL_CreateMove( flFrameTime, pCmd, iActive );*/
 
 	/*
 
@@ -1179,6 +1191,8 @@ void CClient::CL_CreateMove( float flFrameTime, usercmd_s *pCmd, int iActive ) {
 	//----------------------------------------------------
 
 	g_pLocalPlayer()->m_iFPS = 1 / flFrameTime;
+	g_pLocalPlayer()->m_vecOldViewAngles = g_pLocalPlayer()->m_vecViewAngles;
+	g_pLocalPlayer()->m_flOldAccumYaw = g_pLocalPlayer()->m_flAccumYaw;
 
 	// Rayish fix.
 	// Remember to use 250 sidemove only (no random on rayish, you can use random between 0 - 250 on dofrag), no forwardmove (unless sideways ofcourse).
