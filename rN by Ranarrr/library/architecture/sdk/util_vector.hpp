@@ -94,6 +94,13 @@ public:
 		float c = this->z - from[ 2 ];
 		return sqrt( a * a + b * b + c * c );
 	}
+	
+	inline float CalcYaw() {
+		if( this->y < 0.f )
+			return ( this->y + 360.f );
+		
+		return this->y;
+	}
 
 	inline float *Base() { return ( float * ) this; }
 	inline Vector2D Make2D() const { return Vector2D( x, y ); }
